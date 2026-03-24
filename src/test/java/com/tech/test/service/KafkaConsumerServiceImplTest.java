@@ -9,6 +9,7 @@ import com.tech.test.entity.StudentAnswer;
 import com.tech.test.exception.KafkaProcessingException;
 import com.tech.test.repository.QuestionRepository;
 import com.tech.test.repository.StudentAnswerRepository;
+import com.tech.test.serviceImpl.KafkaConsumerServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,7 +24,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class KafkaConsumerServiceTest {
+public class KafkaConsumerServiceImplTest {
 
     @Mock
     private QuestionRepository questionRepo;
@@ -31,8 +32,14 @@ public class KafkaConsumerServiceTest {
     @Mock
     private StudentAnswerRepository answerRepo;
 
+    @Mock
+    private EmailService emailService;
+
+    @Mock
+    private InventoryService inventoryService;
+
     @InjectMocks
-    private KafkaConsumerService kafkaConsumerService;
+    private KafkaConsumerServiceImpl kafkaConsumerServiceImpl;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -59,7 +66,7 @@ public class KafkaConsumerServiceTest {
         when(questionRepo.findById(2L)).thenReturn(Optional.of(q2));
         when(answerRepo.save(any(StudentAnswer.class))).thenReturn(new StudentAnswer());
 
-        assertDoesNotThrow(() -> kafkaConsumerService.consume(message));
+        assertDoesNotThrow(() -> kafkaConsumerServiceImpl.consume(message));
 
         verify(questionRepo, times(1)).findById(1L);
         verify(questionRepo, times(1)).findById(2L);
@@ -70,14 +77,14 @@ public class KafkaConsumerServiceTest {
     public void testConsumeSubmitTestTopic_InvalidJson() {
         String invalidMessage = "{invalid json}";
 
-        assertThrows(KafkaProcessingException.class, () -> kafkaConsumerService.consume(invalidMessage));
+        assertThrows(KafkaProcessingException.class, () -> kafkaConsumerServiceImpl.consume(invalidMessage));
     }
 
     @Test
     public void testConsumeOrderTopic() {
-        Order order = new Order(1L, "Product A", 5);
+        Order order = new Order(1L, "Product A", 5, "123 Main St", "City", "12345");
 
-        assertDoesNotThrow(() -> kafkaConsumerService.consume(order));
+        assertDoesNotThrow(() -> kafkaConsumerServiceImpl.consume(order));
     }
 
     @Test
@@ -94,7 +101,7 @@ public class KafkaConsumerServiceTest {
 
         when(questionRepo.findById(1L)).thenReturn(Optional.empty());
 
-        assertDoesNotThrow(() -> kafkaConsumerService.consume(message));
+        assertDoesNotThrow(() -> kafkaConsumerServiceImpl.consume(message));
 
         verify(questionRepo, times(1)).findById(1L);
         verify(answerRepo, never()).save(any(StudentAnswer.class)); // No save because question not found

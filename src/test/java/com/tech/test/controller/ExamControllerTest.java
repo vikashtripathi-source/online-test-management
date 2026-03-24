@@ -1,11 +1,8 @@
 package com.tech.test.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tech.test.dto.AnswerRequest;
-import com.tech.test.dto.QuestionDTO;
-import com.tech.test.dto.SubmitTestRequest;
-import com.tech.test.dto.TestResultResponse;
-import com.tech.test.entity.Question;
+import com.tech.test.entity.StudentTestRecord;
+import com.tech.test.enums.Branch;
 import com.tech.test.service.ExamService;
 import com.tech.test.service.KafkaProducerService;
 import org.junit.jupiter.api.Test;
@@ -15,22 +12,21 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.Arrays;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(ExamController.class)
-public class ExamControllerTest {
+class ExamControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @MockBean
-    private ExamService examService;
+    private ExamService service;
 
     @MockBean
     private KafkaProducerService kafkaProducerService;
@@ -38,98 +34,66 @@ public class ExamControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Test
-    public void testAddQuestion() throws Exception {
-        Question question = new Question(1L, "What is 2+2?", "3", "4", "5", "6", "B");
-        when(examService.addQuestion(any(Question.class))).thenReturn(question);
-
-        mockMvc.perform(post("/api/question")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(question)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1L))
-                .andExpect(jsonPath("$.question").value("What is 2+2?"));
-
-        verify(examService, times(1)).addQuestion(any(Question.class));
+    private StudentTestRecord sample() {
+        return new StudentTestRecord(1L,"12345",
+                Branch.CSE,85,1L);
     }
 
     @Test
-    public void testAddAllQuestions() throws Exception {
-        Question q1 = new Question(1L, "Q1", "A", "B", "C", "D", "A");
-        Question q2 = new Question(2L, "Q2", "A", "B", "C", "D", "B");
-        List<Question> questions = Arrays.asList(q1, q2);
-        when(examService.addAllQuestions(anyList())).thenReturn(questions);
+    void testSaveStudentTestRecord() throws Exception {
 
-        mockMvc.perform(post("/api/questions")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(questions)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").value(1L))
-                .andExpect(jsonPath("$[1].id").value(2L));
+        when(service.saveStudentTestRecord(any()))
+                .thenReturn(sample());
 
-        verify(examService, times(1)).addAllQuestions(anyList());
+        mockMvc.perform(post("/api/exams/student-records")   // ⭐ FIXED
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(sample())))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.branch").value("CSE"));
+
+        verify(service).saveStudentTestRecord(any());
     }
 
     @Test
-    public void testGetQuestions() throws Exception {
-        QuestionDTO q1 = new QuestionDTO();
-        q1.setId(1L);
-        q1.setQuestion("Q1");
-        q1.setOptionA("A");
-        q1.setOptionB("B");
-        q1.setOptionC("C");
-        q1.setOptionD("D");
-        List<QuestionDTO> questions = Arrays.asList(q1);
-        when(examService.getAllQuestions()).thenReturn(questions);
+    void testGetRecordsByBranch() throws Exception {
 
-        mockMvc.perform(get("/api/questions"))
+        when(service.getRecordsByBranch(Branch.CSE))
+                .thenReturn(List.of(sample()));
+
+        mockMvc.perform(get("/api/exams/student-records/branch/CSE")) // ⭐ FIXED
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").value(1L))
-                .andExpect(jsonPath("$[0].question").value("Q1"));
+                .andExpect(jsonPath("$[0].branch").value("CSE"));
 
-        verify(examService, times(1)).getAllQuestions();
+        verify(service).getRecordsByBranch(Branch.CSE);
     }
 
     @Test
-    public void testSubmit() throws Exception {
-        SubmitTestRequest request = new SubmitTestRequest();
-        request.setStudentId(1L);
-        AnswerRequest answer = new AnswerRequest();
-        answer.setQuestionId(1L);
-        answer.setSelectedAnswer("A");
-        request.setAnswers(Arrays.asList(answer));
+    void testUpdateStudentTestRecord() throws Exception {
 
-        TestResultResponse response = new TestResultResponse(1L, 1, 1);
-        when(examService.submitTest(any(SubmitTestRequest.class))).thenReturn(response);
+        StudentTestRecord updated =
+                new StudentTestRecord(1L,"54321",
+                        Branch.EC,90,2L);
 
-        mockMvc.perform(post("/api/submit")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+        when(service.updateStudentTestRecord(eq(1L), any()))
+                .thenReturn(updated);
+
+        mockMvc.perform(put("/api/exams/student-records/1") // ⭐ FIXED
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updated)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.studentId").value(1L))
-                .andExpect(jsonPath("$.score").value(1))
-                .andExpect(jsonPath("$.totalQuestions").value(1));
+                .andExpect(jsonPath("$.branch").value("EC"));
 
-        verify(examService, times(1)).submitTest(any(SubmitTestRequest.class));
+        verify(service).updateStudentTestRecord(eq(1L), any());
     }
 
     @Test
-    public void testSubmitTest() throws Exception {
-        SubmitTestRequest request = new SubmitTestRequest();
-        request.setStudentId(1L);
-        AnswerRequest answer = new AnswerRequest();
-        answer.setQuestionId(1L);
-        answer.setSelectedAnswer("A");
-        request.setAnswers(Arrays.asList(answer));
+    void testDeleteStudentTestRecord() throws Exception {
 
-        doNothing().when(kafkaProducerService).sendTestSubmission(any(SubmitTestRequest.class));
+        doNothing().when(service).deleteStudentTestRecord(1L);
 
-        mockMvc.perform(post("/api/submit-test")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk())
-                .andExpect(content().string("Test submitted successfully (processing async)"));
+        mockMvc.perform(delete("/api/exams/student-records/1")) // ⭐ FIXED
+                .andExpect(status().isNoContent());
 
-        verify(kafkaProducerService, times(1)).sendTestSubmission(any(SubmitTestRequest.class));
+        verify(service).deleteStudentTestRecord(1L);
     }
 }

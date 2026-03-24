@@ -7,19 +7,15 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Data
-@Table(name="orders")
+@Table(name = "inventory")
 @AllArgsConstructor
 @NoArgsConstructor
-public class Order {
+public class Inventory {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String productName;
-    private int quantity;
-
-    private String address;
-    private String city;
-    private String zipCode;
+    private int stockQuantity;
 }

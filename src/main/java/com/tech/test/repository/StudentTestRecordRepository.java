@@ -1,0 +1,14 @@
+package com.tech.test.repository;
+
+import com.tech.test.entity.StudentTestRecord;
+import com.tech.test.enums.Branch;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+public interface StudentTestRecordRepository extends JpaRepository<StudentTestRecord, Long> {
+
+    List<StudentTestRecord> findByBranch(Branch branch);
+}

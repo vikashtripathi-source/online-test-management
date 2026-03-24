@@ -1,25 +1,25 @@
 package com.tech.test.service;
 
-
 import com.tech.test.dto.SubmitTestRequest;
 import com.tech.test.entity.Order;
-import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.stereotype.Service;
+import com.tech.test.entity.Question;
+import com.tech.test.entity.StudentTestRecord;
 
-@Service
-public class KafkaProducerService {
+public interface KafkaProducerService {
 
-    private final KafkaTemplate<String, Object> kafkaTemplate;
+    void sendTestSubmission(SubmitTestRequest request);
 
-    public KafkaProducerService(KafkaTemplate<String, Object> kafkaTemplate) {
-        this.kafkaTemplate = kafkaTemplate;
-    }
+    void sendOrder(Order order);
 
-    public void sendTestSubmission(SubmitTestRequest request) {
-        kafkaTemplate.send("submit-test-topic", request);
-    }
+    void sendQuestionAdded(Question question);
 
-    public void sendOrder(Order order) {
-        kafkaTemplate.send("order-topic", order);
-    }
+    void sendQuestionDeleted(Long id);
+
+    void sendStudentRecordUpdated(StudentTestRecord record);
+
+    void sendStudentRecordDeleted(Long id);
+
+    void sendOrderUpdated(Order order);
+
+    void sendOrderDeleted(Long id);
 }

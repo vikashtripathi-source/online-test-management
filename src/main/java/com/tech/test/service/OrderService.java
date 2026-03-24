@@ -1,27 +1,21 @@
 package com.tech.test.service;
 
 import com.tech.test.entity.Order;
-import com.tech.test.repository.OrderRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
-@Service
-public class OrderService {
+import java.util.List;
+import java.util.Optional;
 
-    @Autowired
-    private OrderRepository repository;
+public interface OrderService {
 
-    @Autowired
-    private KafkaProducerService producer;
+    Order createOrder(Order order);
 
-    public Order createOrder(Order order) {
+    List<Order> getAllOrders();
 
-        // 1. Save in DB
-        Order savedOrder = repository.save(order);
+    Optional<Order> getOrderById(Long id);
 
-        // 2. Send event to Kafka
-        producer.sendOrder(savedOrder);
+    Order updateOrder(Long id, Order orderDetails);
 
-        return savedOrder;
-    }
+    void deleteOrder(Long id);
+
+    Order submitOrderWithAddress(Order order);
 }

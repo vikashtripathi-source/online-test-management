@@ -25,75 +25,41 @@ public class OrderController {
     @PostMapping
     @Operation(summary = "Create Order")
     public ResponseEntity<OrderDTO> create(@Valid @RequestBody OrderDTO orderDTO) {
-        try {
-            OrderDTO saved = orderService.createOrder(orderDTO);
-            return new ResponseEntity<>(saved, HttpStatus.CREATED);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        OrderDTO saved = orderService.createOrder(orderDTO);
+        return new ResponseEntity<>(saved, HttpStatus.CREATED);
     }
 
     @GetMapping
     @Operation(summary = "Get All Orders")
     public ResponseEntity<List<OrderDTO>> getAllOrders() {
-        try {
-            return ResponseEntity.ok(orderService.getAllOrders());
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return ResponseEntity.ok(orderService.getAllOrders());
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "Get Order By Id")
     public ResponseEntity<OrderDTO> getOrderById(@PathVariable Long id) {
-        try {
-            return orderService.getOrderById(id)
-                    .map(ResponseEntity::ok)
-                    .orElse(ResponseEntity.notFound().build());
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return orderService.getOrderById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "Update Order")
     public ResponseEntity<OrderDTO> updateOrder(@PathVariable Long id,
                                              @Valid @RequestBody OrderDTO orderDTO) {
-        try {
-            return ResponseEntity.ok(orderService.updateOrder(id, orderDTO));
-        } catch (RuntimeException e) {
-            if (e.getMessage().contains("not found")) {
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            }
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return ResponseEntity.ok(orderService.updateOrder(id, orderDTO));
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete Order")
     public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
-        try {
-            orderService.deleteOrder(id);
-            return ResponseEntity.noContent().build();
-        } catch (RuntimeException e) {
-            if (e.getMessage().contains("not found")) {
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            }
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        orderService.deleteOrder(id);
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/submit")
     @Operation(summary = "Submit Order With Address")
     public ResponseEntity<OrderDTO> submitOrderWithAddress(@Valid @RequestBody OrderDTO orderDTO) {
-        try {
-            return ResponseEntity.ok(orderService.submitOrderWithAddress(orderDTO));
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return ResponseEntity.ok(orderService.submitOrderWithAddress(orderDTO));
     }
 }

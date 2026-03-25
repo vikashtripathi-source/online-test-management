@@ -26,76 +26,42 @@ public class AddressController {
     @PostMapping
     @Operation(summary = "Create a new address (Home or College)")
     public ResponseEntity<AddressDTO> createAddress(@Valid @RequestBody AddressDTO addressDTO) {
-        try {
-            AddressDTO savedAddress = addressService.createAddress(addressDTO);
-            return new ResponseEntity<>(savedAddress, HttpStatus.CREATED);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        AddressDTO savedAddress = addressService.createAddress(addressDTO);
+        return new ResponseEntity<>(savedAddress, HttpStatus.CREATED);
     }
 
     @GetMapping
     @Operation(summary = "Get all addresses")
     public ResponseEntity<List<AddressDTO>> getAllAddresses() {
-        try {
-            return ResponseEntity.ok(addressService.getAllAddresses());
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return ResponseEntity.ok(addressService.getAllAddresses());
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "Get address by ID")
     public ResponseEntity<AddressDTO> getAddressById(@PathVariable Long id) {
-        try {
-            return addressService.getAddressById(id)
-                    .map(ResponseEntity::ok)
-                    .orElse(ResponseEntity.notFound().build());
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return addressService.getAddressById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "Update an existing address")
     public ResponseEntity<AddressDTO> updateAddress(@PathVariable Long id,
                                                  @Valid @RequestBody AddressDTO addressDTO) {
-        try {
-            AddressDTO updatedAddress = addressService.updateAddress(id, addressDTO);
-            return ResponseEntity.ok(updatedAddress);
-        } catch (RuntimeException e) {
-            if (e.getMessage().contains("not found")) {
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            }
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        AddressDTO updatedAddress = addressService.updateAddress(id, addressDTO);
+        return ResponseEntity.ok(updatedAddress);
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete an address")
     public ResponseEntity<Void> deleteAddress(@PathVariable Long id) {
-        try {
-            addressService.deleteAddress(id);
-            return ResponseEntity.noContent().build();
-        } catch (RuntimeException e) {
-            if (e.getMessage().contains("not found")) {
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            }
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        addressService.deleteAddress(id);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/type/{type}")
     @Operation(summary = "Get addresses by type (HOME or COLLEGE)")
     public ResponseEntity<List<AddressDTO>> getAddressesByType(@PathVariable AddressType type) {
-        try {
-            return ResponseEntity.ok(addressService.getAddressesByType(type));
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return ResponseEntity.ok(addressService.getAddressesByType(type));
     }
 }

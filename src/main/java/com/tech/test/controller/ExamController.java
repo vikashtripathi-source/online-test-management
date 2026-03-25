@@ -27,41 +27,25 @@ public class ExamController {
 
     @PostMapping("/questions")
     public ResponseEntity<QuestionDTO> addQuestion(@Valid @RequestBody QuestionDTO questionDTO) {
-        try {
-            QuestionDTO saved = service.addQuestion(questionDTO);
-            return ResponseEntity.status(HttpStatus.CREATED).body(saved);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        QuestionDTO saved = service.addQuestion(questionDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
     @PostMapping("/questions/bulk")
     public ResponseEntity<List<QuestionDTO>> addAllQuestions(@Valid @RequestBody List<QuestionDTO> questionDTOs) {
-        try {
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(service.addAllQuestions(questionDTOs));
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(service.addAllQuestions(questionDTOs));
     }
 
     @GetMapping("/questions")
     public ResponseEntity<List<QuestionDTO>> getQuestions() {
-        try {
-            return ResponseEntity.ok(service.getAllQuestions());
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return ResponseEntity.ok(service.getAllQuestions());
     }
 
     @DeleteMapping("/questions/{id}")
     public ResponseEntity<Void> deleteQuestion(@PathVariable Long id) {
-        try {
-            service.deleteQuestion(id);
-            return ResponseEntity.noContent().build();
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        service.deleteQuestion(id);
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/tests/submit")
@@ -71,9 +55,7 @@ public class ExamController {
 
     @PostMapping("/tests/async-submit")
     public ResponseEntity<String> submitAsync(@Valid @RequestBody SubmitTestRequest request) {
-
         kafkaProducerService.sendTestSubmission(request);
-
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .body("Test submission accepted and queued for evaluation");
     }
@@ -81,47 +63,26 @@ public class ExamController {
     @PostMapping("/student-records")
     public ResponseEntity<StudentTestRecordDTO> saveStudentTestRecord(
             @Valid @RequestBody StudentTestRecordDTO recordDTO) {
-        try {
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(service.saveStudentTestRecord(recordDTO));
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(service.saveStudentTestRecord(recordDTO));
     }
 
     @PutMapping("/student-records/{id}")
     public ResponseEntity<StudentTestRecordDTO> updateStudentTestRecord(
             @PathVariable Long id,
             @Valid @RequestBody StudentTestRecordDTO recordDTO) {
-        try {
-            return ResponseEntity.ok(service.updateStudentTestRecord(id, recordDTO));
-        } catch (RuntimeException e) {
-            if (e.getMessage().contains("not found")) {
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            }
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return ResponseEntity.ok(service.updateStudentTestRecord(id, recordDTO));
     }
 
     @DeleteMapping("/student-records/{id}")
     public ResponseEntity<Void> deleteStudentTestRecord(@PathVariable Long id) {
-        try {
-            service.deleteStudentTestRecord(id);
-            return ResponseEntity.noContent().build();
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        service.deleteStudentTestRecord(id);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/student-records/branch/{branch}")
     public ResponseEntity<List<StudentTestRecordDTO>> getRecordsByBranch(
             @PathVariable Branch branch) {
-        try {
-            return ResponseEntity.ok(service.getRecordsByBranch(branch));
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return ResponseEntity.ok(service.getRecordsByBranch(branch));
     }
 }

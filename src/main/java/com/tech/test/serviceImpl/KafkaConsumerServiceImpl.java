@@ -1,12 +1,13 @@
 package com.tech.test.serviceImpl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tech.test.dto.OrderDTO;
 import com.tech.test.dto.SubmitTestRequest;
 import com.tech.test.dto.AnswerRequest;
-import com.tech.test.entity.Order;
 import com.tech.test.entity.Question;
 import com.tech.test.entity.StudentAnswer;
 import com.tech.test.exception.KafkaProcessingException;
+import com.tech.test.mapper.OrderMapper;
 import com.tech.test.repository.QuestionRepository;
 import com.tech.test.repository.StudentAnswerRepository;
 import com.tech.test.service.EmailService;
@@ -22,12 +23,14 @@ public class KafkaConsumerServiceImpl implements com.tech.test.service.KafkaCons
     private final StudentAnswerRepository answerRepo;
     private final EmailService emailService;
     private final InventoryService inventoryService;
+    private final OrderMapper orderMapper;
 
-    public KafkaConsumerServiceImpl(QuestionRepository questionRepo, StudentAnswerRepository answerRepo, EmailService emailService, InventoryService inventoryService) {
+    public KafkaConsumerServiceImpl(QuestionRepository questionRepo, StudentAnswerRepository answerRepo, EmailService emailService, InventoryService inventoryService, OrderMapper orderMapper) {
         this.questionRepo = questionRepo;
         this.answerRepo = answerRepo;
         this.emailService = emailService;
         this.inventoryService = inventoryService;
+        this.orderMapper = orderMapper;
     }
 
     @KafkaListener(topics = "submit-test-topic", groupId = "my-group")
@@ -67,18 +70,18 @@ public class KafkaConsumerServiceImpl implements com.tech.test.service.KafkaCons
     }
 
     @KafkaListener(topics = "order-topic", groupId = "order-group")
-    public void consume(Order order) {
+    public void consume(OrderDTO orderDTO) {
 
-        System.out.println("Received Order: " + order.getProductName());
-        sendEmail(order);
-        updateInventory(order);
+        System.out.println("Received Order: " + orderDTO.getProductName());
+        sendEmail(orderDTO);
+        updateInventory(orderDTO);
     }
 
-    private void sendEmail(Order order) {
-        emailService.sendOrderConfirmation(order);
+    private void sendEmail(OrderDTO orderDTO) {
+        emailService.sendOrderConfirmation(orderDTO);
     }
 
-    private void updateInventory(Order order) {
-        inventoryService.updateInventory(order);
+    private void updateInventory(OrderDTO orderDTO) {
+        inventoryService.updateInventory(orderDTO);
     }
 }

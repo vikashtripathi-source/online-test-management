@@ -1,8 +1,8 @@
 package com.tech.test.service;
 
-import com.tech.test.entity.Order;
+import com.tech.test.dto.OrderDTO;
 
 public interface InventoryService {
 
-    void updateInventory(Order order);
+    void updateInventory(OrderDTO orderDTO);
 }

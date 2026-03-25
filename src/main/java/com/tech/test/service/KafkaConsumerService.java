@@ -1,10 +1,10 @@
 package com.tech.test.service;
 
-import com.tech.test.entity.Order;
+import com.tech.test.dto.OrderDTO;
 
 public interface KafkaConsumerService {
 
     void consume(String message);
 
-    void consume(Order order);
+    void consume(OrderDTO orderDTO);
 }

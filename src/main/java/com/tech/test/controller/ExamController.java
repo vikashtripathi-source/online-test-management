@@ -1,10 +1,9 @@
 package com.tech.test.controller;
 
 import com.tech.test.dto.QuestionDTO;
+import com.tech.test.dto.StudentTestRecordDTO;
 import com.tech.test.dto.SubmitTestRequest;
 import com.tech.test.dto.TestResultResponse;
-import com.tech.test.entity.Question;
-import com.tech.test.entity.StudentTestRecord;
 import com.tech.test.enums.Branch;
 import com.tech.test.service.ExamService;
 import com.tech.test.service.KafkaProducerService;
@@ -27,26 +26,42 @@ public class ExamController {
     private final KafkaProducerService kafkaProducerService;
 
     @PostMapping("/questions")
-    public ResponseEntity<Question> addQuestion(@Valid @RequestBody Question q) {
-        Question saved = service.addQuestion(q);
-        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
+    public ResponseEntity<QuestionDTO> addQuestion(@Valid @RequestBody QuestionDTO questionDTO) {
+        try {
+            QuestionDTO saved = service.addQuestion(questionDTO);
+            return ResponseEntity.status(HttpStatus.CREATED).body(saved);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @PostMapping("/questions/bulk")
-    public ResponseEntity<List<Question>> addAllQuestions(@Valid @RequestBody List<Question> questions) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(service.addAllQuestions(questions));
+    public ResponseEntity<List<QuestionDTO>> addAllQuestions(@Valid @RequestBody List<QuestionDTO> questionDTOs) {
+        try {
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(service.addAllQuestions(questionDTOs));
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @GetMapping("/questions")
     public ResponseEntity<List<QuestionDTO>> getQuestions() {
-        return ResponseEntity.ok(service.getAllQuestions());
+        try {
+            return ResponseEntity.ok(service.getAllQuestions());
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @DeleteMapping("/questions/{id}")
     public ResponseEntity<Void> deleteQuestion(@PathVariable Long id) {
-        service.deleteQuestion(id);
-        return ResponseEntity.noContent().build();
+        try {
+            service.deleteQuestion(id);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @PostMapping("/tests/submit")
@@ -64,32 +79,49 @@ public class ExamController {
     }
 
     @PostMapping("/student-records")
-    public ResponseEntity<StudentTestRecord> saveStudentTestRecord(
-            @Valid @RequestBody StudentTestRecord record) {
-
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(service.saveStudentTestRecord(record));
+    public ResponseEntity<StudentTestRecordDTO> saveStudentTestRecord(
+            @Valid @RequestBody StudentTestRecordDTO recordDTO) {
+        try {
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(service.saveStudentTestRecord(recordDTO));
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @PutMapping("/student-records/{id}")
-    public ResponseEntity<StudentTestRecord> updateStudentTestRecord(
+    public ResponseEntity<StudentTestRecordDTO> updateStudentTestRecord(
             @PathVariable Long id,
-            @Valid @RequestBody StudentTestRecord record) {
-
-        return ResponseEntity.ok(service.updateStudentTestRecord(id, record));
+            @Valid @RequestBody StudentTestRecordDTO recordDTO) {
+        try {
+            return ResponseEntity.ok(service.updateStudentTestRecord(id, recordDTO));
+        } catch (RuntimeException e) {
+            if (e.getMessage().contains("not found")) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @DeleteMapping("/student-records/{id}")
     public ResponseEntity<Void> deleteStudentTestRecord(@PathVariable Long id) {
-
-        service.deleteStudentTestRecord(id);
-        return ResponseEntity.noContent().build();
+        try {
+            service.deleteStudentTestRecord(id);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @GetMapping("/student-records/branch/{branch}")
-    public ResponseEntity<List<StudentTestRecord>> getRecordsByBranch(
+    public ResponseEntity<List<StudentTestRecordDTO>> getRecordsByBranch(
             @PathVariable Branch branch) {
-
-        return ResponseEntity.ok(service.getRecordsByBranch(branch));
+        try {
+            return ResponseEntity.ok(service.getRecordsByBranch(branch));
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

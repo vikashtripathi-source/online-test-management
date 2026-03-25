@@ -1,7 +1,8 @@
 package com.tech.test.controller;
 
-import com.tech.test.dto.OrderDTO;
-import com.tech.test.service.OrderService;
+import com.tech.test.dto.AddressDTO;
+import com.tech.test.enums.AddressType;
+import com.tech.test.service.AddressService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -12,42 +13,42 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@Tag(name = "Order Management API", description = "Operations related to Order, Order Submission and Order Records")
-@RequestMapping("/orders")
-public class OrderController {
+@RequestMapping("/api/addresses")
+@Tag(name = "Address API", description = "API for managing addresses (Home and College)")
+public class AddressController {
 
-    private final OrderService orderService;
+    private final AddressService addressService;
 
-    public OrderController(OrderService orderService) {
-        this.orderService = orderService;
+    public AddressController(AddressService addressService) {
+        this.addressService = addressService;
     }
 
     @PostMapping
-    @Operation(summary = "Create Order")
-    public ResponseEntity<OrderDTO> create(@Valid @RequestBody OrderDTO orderDTO) {
+    @Operation(summary = "Create a new address (Home or College)")
+    public ResponseEntity<AddressDTO> createAddress(@Valid @RequestBody AddressDTO addressDTO) {
         try {
-            OrderDTO saved = orderService.createOrder(orderDTO);
-            return new ResponseEntity<>(saved, HttpStatus.CREATED);
+            AddressDTO savedAddress = addressService.createAddress(addressDTO);
+            return new ResponseEntity<>(savedAddress, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @GetMapping
-    @Operation(summary = "Get All Orders")
-    public ResponseEntity<List<OrderDTO>> getAllOrders() {
+    @Operation(summary = "Get all addresses")
+    public ResponseEntity<List<AddressDTO>> getAllAddresses() {
         try {
-            return ResponseEntity.ok(orderService.getAllOrders());
+            return ResponseEntity.ok(addressService.getAllAddresses());
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Get Order By Id")
-    public ResponseEntity<OrderDTO> getOrderById(@PathVariable Long id) {
+    @Operation(summary = "Get address by ID")
+    public ResponseEntity<AddressDTO> getAddressById(@PathVariable Long id) {
         try {
-            return orderService.getOrderById(id)
+            return addressService.getAddressById(id)
                     .map(ResponseEntity::ok)
                     .orElse(ResponseEntity.notFound().build());
         } catch (Exception e) {
@@ -56,11 +57,12 @@ public class OrderController {
     }
 
     @PutMapping("/{id}")
-    @Operation(summary = "Update Order")
-    public ResponseEntity<OrderDTO> updateOrder(@PathVariable Long id,
-                                             @Valid @RequestBody OrderDTO orderDTO) {
+    @Operation(summary = "Update an existing address")
+    public ResponseEntity<AddressDTO> updateAddress(@PathVariable Long id,
+                                                 @Valid @RequestBody AddressDTO addressDTO) {
         try {
-            return ResponseEntity.ok(orderService.updateOrder(id, orderDTO));
+            AddressDTO updatedAddress = addressService.updateAddress(id, addressDTO);
+            return ResponseEntity.ok(updatedAddress);
         } catch (RuntimeException e) {
             if (e.getMessage().contains("not found")) {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -72,10 +74,10 @@ public class OrderController {
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Delete Order")
-    public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
+    @Operation(summary = "Delete an address")
+    public ResponseEntity<Void> deleteAddress(@PathVariable Long id) {
         try {
-            orderService.deleteOrder(id);
+            addressService.deleteAddress(id);
             return ResponseEntity.noContent().build();
         } catch (RuntimeException e) {
             if (e.getMessage().contains("not found")) {
@@ -87,11 +89,11 @@ public class OrderController {
         }
     }
 
-    @PostMapping("/submit")
-    @Operation(summary = "Submit Order With Address")
-    public ResponseEntity<OrderDTO> submitOrderWithAddress(@Valid @RequestBody OrderDTO orderDTO) {
+    @GetMapping("/type/{type}")
+    @Operation(summary = "Get addresses by type (HOME or COLLEGE)")
+    public ResponseEntity<List<AddressDTO>> getAddressesByType(@PathVariable AddressType type) {
         try {
-            return ResponseEntity.ok(orderService.submitOrderWithAddress(orderDTO));
+            return ResponseEntity.ok(addressService.getAddressesByType(type));
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }

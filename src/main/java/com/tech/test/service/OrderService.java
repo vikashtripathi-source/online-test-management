@@ -1,21 +1,21 @@
 package com.tech.test.service;
 
-import com.tech.test.entity.Order;
+import com.tech.test.dto.OrderDTO;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface OrderService {
 
-    Order createOrder(Order order);
+    OrderDTO createOrder(OrderDTO orderDTO);
 
-    List<Order> getAllOrders();
+    List<OrderDTO> getAllOrders();
 
-    Optional<Order> getOrderById(Long id);
+    Optional<OrderDTO> getOrderById(Long id);
 
-    Order updateOrder(Long id, Order orderDetails);
+    OrderDTO updateOrder(Long id, OrderDTO orderDTO);
 
     void deleteOrder(Long id);
 
-    Order submitOrderWithAddress(Order order);
+    OrderDTO submitOrderWithAddress(OrderDTO orderDTO);
 }

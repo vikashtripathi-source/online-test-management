@@ -2,12 +2,17 @@ package com.tech.test.serviceImpl;
 
 import com.tech.test.dto.AnswerRequest;
 import com.tech.test.dto.QuestionDTO;
+import com.tech.test.dto.StudentAnswerDTO;
+import com.tech.test.dto.StudentTestRecordDTO;
 import com.tech.test.dto.SubmitTestRequest;
 import com.tech.test.dto.TestResultResponse;
 import com.tech.test.entity.Question;
 import com.tech.test.entity.StudentAnswer;
 import com.tech.test.entity.StudentTestRecord;
 import com.tech.test.enums.Branch;
+import com.tech.test.mapper.QuestionMapper;
+import com.tech.test.mapper.StudentAnswerMapper;
+import com.tech.test.mapper.StudentTestRecordMapper;
 import com.tech.test.repository.QuestionRepository;
 import com.tech.test.repository.StudentAnswerRepository;
 import com.tech.test.repository.StudentTestRecordRepository;
@@ -17,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -26,12 +32,15 @@ public class ExamServiceImpl implements com.tech.test.service.ExamService {
     private final StudentAnswerRepository answerRepo;
     private final KafkaProducerService kafkaProducerService;
     private final StudentTestRecordRepository studentTestRecordRepository;
+    private final QuestionMapper questionMapper;
+    private final StudentAnswerMapper studentAnswerMapper;
+    private final StudentTestRecordMapper studentTestRecordMapper;
 
-
-    public Question addQuestion(Question q) {
-        Question saved = questionRepo.save(q);
+    public QuestionDTO addQuestion(QuestionDTO questionDTO) {
+        Question question = questionMapper.toEntity(questionDTO);
+        Question saved = questionRepo.save(question);
         kafkaProducerService.sendQuestionAdded(saved);
-        return saved;
+        return questionMapper.toDTO(saved);
     }
 
     public void deleteQuestion(Long id) {
@@ -39,26 +48,16 @@ public class ExamServiceImpl implements com.tech.test.service.ExamService {
         kafkaProducerService.sendQuestionDeleted(id);
     }
 
-    public List<Question> addAllQuestions(List<Question> questions) {
-        return questionRepo.saveAll(questions);
+    public List<QuestionDTO> addAllQuestions(List<QuestionDTO> questionDTOs) {
+        List<Question> questions = questionMapper.toEntityList(questionDTOs);
+        List<Question> savedQuestions = questionRepo.saveAll(questions);
+        return questionMapper.toDTOList(savedQuestions);
     }
 
     public List<QuestionDTO> getAllQuestions() {
-
         List<Question> questions = questionRepo.findAll();
-
-        return questions.stream().map(q -> {
-            QuestionDTO dto = new QuestionDTO();
-            dto.setId(q.getId());
-            dto.setQuestion(q.getQuestion());
-            dto.setOptionA(q.getOptionA());
-            dto.setOptionB(q.getOptionB());
-            dto.setOptionC(q.getOptionC());
-            dto.setOptionD(q.getOptionD());
-            return dto;
-        }).toList();
+        return questionMapper.toDTOList(questions);
     }
-
 
     public TestResultResponse submitTest(SubmitTestRequest request) {
 
@@ -90,21 +89,22 @@ public class ExamServiceImpl implements com.tech.test.service.ExamService {
         return response;
     }
 
-    public StudentTestRecord saveStudentTestRecord(StudentTestRecord record) {
-        return studentTestRecordRepository.save(record);
+    public StudentTestRecordDTO saveStudentTestRecord(StudentTestRecordDTO recordDTO) {
+        StudentTestRecord record = studentTestRecordMapper.toEntity(recordDTO);
+        StudentTestRecord saved = studentTestRecordRepository.save(record);
+        return studentTestRecordMapper.toDTO(saved);
     }
 
-    public StudentTestRecord updateStudentTestRecord(Long id, StudentTestRecord recordDetails) {
+    public StudentTestRecordDTO updateStudentTestRecord(Long id, StudentTestRecordDTO recordDTO) {
         Optional<StudentTestRecord> optionalRecord = studentTestRecordRepository.findById(id);
         if (optionalRecord.isPresent()) {
             StudentTestRecord record = optionalRecord.get();
-            record.setRollNumber(recordDetails.getRollNumber());
-            record.setBranch(recordDetails.getBranch());
-            record.setMarks(recordDetails.getMarks());
-            record.setStudentId(recordDetails.getStudentId());
-            StudentTestRecord saved = studentTestRecordRepository.save(record);
+            // Update fields from DTO
+            StudentTestRecord updatedRecord = studentTestRecordMapper.toEntity(recordDTO);
+            updatedRecord.setId(id); // Preserve the ID
+            StudentTestRecord saved = studentTestRecordRepository.save(updatedRecord);
             kafkaProducerService.sendStudentRecordUpdated(saved);
-            return saved;
+            return studentTestRecordMapper.toDTO(saved);
         } else {
             throw new RuntimeException("StudentTestRecord not found with id " + id);
         }
@@ -115,7 +115,8 @@ public class ExamServiceImpl implements com.tech.test.service.ExamService {
         kafkaProducerService.sendStudentRecordDeleted(id);
     }
 
-    public List<StudentTestRecord> getRecordsByBranch(Branch branch) {
-        return studentTestRecordRepository.findByBranch(branch);
+    public List<StudentTestRecordDTO> getRecordsByBranch(Branch branch) {
+        List<StudentTestRecord> records = studentTestRecordRepository.findByBranch(branch);
+        return studentTestRecordMapper.toDTOList(records);
     }
 }

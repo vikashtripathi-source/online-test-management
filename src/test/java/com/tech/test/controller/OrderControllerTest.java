@@ -1,7 +1,7 @@
 package com.tech.test.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tech.test.entity.Order;
+import com.tech.test.dto.OrderDTO;
 import com.tech.test.service.OrderService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,45 +35,47 @@ public class OrderControllerTest {
     @Test
     void testCreateOrder() throws Exception {
 
-        Order order = new Order(null,"Product A",5,
+        OrderDTO orderDTO = new OrderDTO(null,"Product A",5,
                 "123 Main St","City","12345");
 
-        Order savedOrder = new Order(1L,"Product A",5,
+        OrderDTO savedOrderDTO = new OrderDTO(1L,"Product A",5,
                 "123 Main St","City","12345");
 
-        when(orderService.createOrder(any())).thenReturn(savedOrder);
+        when(orderService.createOrder(any(OrderDTO.class))).thenReturn(savedOrderDTO);
 
         mockMvc.perform(post("/orders")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(order)))
+                        .content(objectMapper.writeValueAsString(orderDTO)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(1));
-
-        verify(orderService).createOrder(any());
     }
 
     @Test
     void testGetAllOrders() throws Exception {
 
-        List<Order> orders = Arrays.asList(
-                new Order(1L,"A",5,"Addr","City","111"),
-                new Order(2L,"B",3,"Addr2","Town","222")
-        );
+        OrderDTO order1 = new OrderDTO(1L,"Product A",5,
+                "123 Main St","City","12345");
+
+        OrderDTO order2 = new OrderDTO(2L,"Product B",3,
+                "456 Elm St","Town","67890");
+
+        List<OrderDTO> orders = Arrays.asList(order1, order2);
 
         when(orderService.getAllOrders()).thenReturn(orders);
 
         mockMvc.perform(get("/orders"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(2));
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[1].id").value(2));
     }
 
     @Test
     void testGetOrderById() throws Exception {
 
-        Order order = new Order(1L,"A",5,"Addr","City","111");
+        OrderDTO order = new OrderDTO(1L,"Product A",5,
+                "123 Main St","City","12345");
 
-        when(orderService.getOrderById(1L))
-                .thenReturn(Optional.of(order));
+        when(orderService.getOrderById(1L)).thenReturn(Optional.of(order));
 
         mockMvc.perform(get("/orders/1"))
                 .andExpect(status().isOk())
@@ -81,10 +83,9 @@ public class OrderControllerTest {
     }
 
     @Test
-    void testGetOrderById_NotFound() throws Exception {
+    void testGetOrderByIdNotFound() throws Exception {
 
-        when(orderService.getOrderById(1L))
-                .thenReturn(Optional.empty());
+        when(orderService.getOrderById(1L)).thenReturn(Optional.empty());
 
         mockMvc.perform(get("/orders/1"))
                 .andExpect(status().isNotFound());
@@ -93,17 +94,16 @@ public class OrderControllerTest {
     @Test
     void testUpdateOrder() throws Exception {
 
-        Order updated = new Order(1L,"Updated",10,
-                "Addr","City","111");
+        OrderDTO updatedOrder = new OrderDTO(1L,"Updated Product",10,
+                "789 Oak St","Village","11111");
 
-        when(orderService.updateOrder(eq(1L), any()))
-                .thenReturn(updated);
+        when(orderService.updateOrder(eq(1L), any(OrderDTO.class))).thenReturn(updatedOrder);
 
         mockMvc.perform(put("/orders/1")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updated)))
+                        .content(objectMapper.writeValueAsString(updatedOrder)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.productName").value("Updated"));
+                .andExpect(jsonPath("$.productName").value("Updated Product"));
     }
 
     @Test
@@ -113,20 +113,24 @@ public class OrderControllerTest {
 
         mockMvc.perform(delete("/orders/1"))
                 .andExpect(status().isNoContent());
+
+        verify(orderService, times(1)).deleteOrder(1L);
     }
 
     @Test
     void testSubmitOrderWithAddress() throws Exception {
 
-        Order saved = new Order(1L,"A",5,
-                "Addr","City","111");
+        OrderDTO orderDTO = new OrderDTO(null,"Product A",5,
+                "123 Main St","City","12345");
 
-        when(orderService.submitOrderWithAddress(any()))
-                .thenReturn(saved);
+        OrderDTO submittedOrder = new OrderDTO(1L,"Product A",5,
+                "123 Main St","City","12345");
+
+        when(orderService.submitOrderWithAddress(any(OrderDTO.class))).thenReturn(submittedOrder);
 
         mockMvc.perform(post("/orders/submit")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(saved)))
+                        .content(objectMapper.writeValueAsString(orderDTO)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1));
     }

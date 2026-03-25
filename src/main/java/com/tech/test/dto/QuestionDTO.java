@@ -2,9 +2,13 @@ package com.tech.test.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class QuestionDTO {
 
     private Long id;
@@ -24,4 +28,7 @@ public class QuestionDTO {
     
     @NotBlank(message = "Option D cannot be blank")
     private String optionD;
+
+    @NotBlank(message = "Correct answer cannot be blank")
+    private String correctAnswer;
 }

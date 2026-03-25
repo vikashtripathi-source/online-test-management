@@ -1,7 +1,7 @@
 package com.tech.test.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tech.test.entity.Address;
+import com.tech.test.dto.AddressDTO;
 import com.tech.test.enums.AddressType;
 import com.tech.test.service.AddressService;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,13 +37,13 @@ public class AddressControllerTest {
     @MockBean
     private AddressService addressService;
 
-    private Address homeAddress;
-    private Address collegeAddress;
+    private AddressDTO homeAddress;
+    private AddressDTO collegeAddress;
 
     @BeforeEach
     public void setUp() {
         // Create test addresses
-        homeAddress = new Address();
+        homeAddress = new AddressDTO();
         homeAddress.setId(1L);
         homeAddress.setStreetAddress("123 Home Street");
         homeAddress.setCity("New York");
@@ -54,7 +54,7 @@ public class AddressControllerTest {
         homeAddress.setPhoneNumber("123-456-7890");
         homeAddress.setEmail("home@example.com");
 
-        collegeAddress = new Address();
+        collegeAddress = new AddressDTO();
         collegeAddress.setId(2L);
         collegeAddress.setStreetAddress("456 College Avenue");
         collegeAddress.setCity("Boston");
@@ -68,7 +68,7 @@ public class AddressControllerTest {
 
     @Test
     public void testCreateAddress() throws Exception {
-        when(addressService.createAddress(any(Address.class))).thenReturn(homeAddress);
+        when(addressService.createAddress(any(AddressDTO.class))).thenReturn(homeAddress);
 
         mockMvc.perform(post("/api/addresses")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -81,7 +81,7 @@ public class AddressControllerTest {
 
     @Test
     public void testGetAllAddresses() throws Exception {
-        List<Address> addresses = Arrays.asList(homeAddress, collegeAddress);
+        List<AddressDTO> addresses = Arrays.asList(homeAddress, collegeAddress);
         when(addressService.getAllAddresses()).thenReturn(addresses);
 
         mockMvc.perform(get("/api/addresses")
@@ -115,7 +115,7 @@ public class AddressControllerTest {
 
     @Test
     public void testUpdateAddress() throws Exception {
-        Address updatedAddress = new Address();
+        AddressDTO updatedAddress = new AddressDTO();
         updatedAddress.setId(1L);
         updatedAddress.setStreetAddress("456 Updated Street");
         updatedAddress.setCity("Los Angeles");
@@ -126,7 +126,7 @@ public class AddressControllerTest {
         updatedAddress.setPhoneNumber("111-222-3333");
         updatedAddress.setEmail("updated@example.com");
 
-        when(addressService.updateAddress(eq(1L), any(Address.class))).thenReturn(updatedAddress);
+        when(addressService.updateAddress(eq(1L), any(AddressDTO.class))).thenReturn(updatedAddress);
 
         mockMvc.perform(put("/api/addresses/1")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -149,7 +149,7 @@ public class AddressControllerTest {
 
     @Test
     public void testGetAddressesByType() throws Exception {
-        List<Address> homeAddresses = Arrays.asList(homeAddress);
+        List<AddressDTO> homeAddresses = Arrays.asList(homeAddress);
         when(addressService.getAddressesByType(AddressType.HOME)).thenReturn(homeAddresses);
 
         mockMvc.perform(get("/api/addresses/type/HOME")
@@ -161,7 +161,7 @@ public class AddressControllerTest {
 
     @Test
     public void testGetAddressesByType_College() throws Exception {
-        List<Address> collegeAddresses = Arrays.asList(collegeAddress);
+        List<AddressDTO> collegeAddresses = Arrays.asList(collegeAddress);
         when(addressService.getAddressesByType(AddressType.COLLEGE)).thenReturn(collegeAddresses);
 
         mockMvc.perform(get("/api/addresses/type/COLLEGE")
@@ -171,4 +171,3 @@ public class AddressControllerTest {
                 .andExpect(jsonPath("$[0].addressType").value("COLLEGE"));
     }
 }
-

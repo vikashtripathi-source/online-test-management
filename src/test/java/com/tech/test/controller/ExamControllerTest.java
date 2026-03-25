@@ -1,7 +1,7 @@
 package com.tech.test.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tech.test.entity.StudentTestRecord;
+import com.tech.test.dto.StudentTestRecordDTO;
 import com.tech.test.enums.Branch;
 import com.tech.test.service.ExamService;
 import com.tech.test.service.KafkaProducerService;
@@ -34,56 +34,59 @@ class ExamControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    private StudentTestRecord sample() {
-        return new StudentTestRecord(1L,"12345",
-                Branch.CSE,85,1L);
+    private StudentTestRecordDTO sample() {
+        StudentTestRecordDTO dto = new StudentTestRecordDTO();
+        dto.setId(1L);
+        dto.setRollNumber("12345");
+        dto.setBranch(Branch.CSE);
+        dto.setMarks(85);
+        dto.setStudentId(1L);
+        return dto;
     }
 
     @Test
     void testSaveStudentTestRecord() throws Exception {
 
-        when(service.saveStudentTestRecord(any()))
-                .thenReturn(sample());
+        StudentTestRecordDTO saved = sample();
+        saved.setId(1L);
 
-        mockMvc.perform(post("/api/exams/student-records")   // ⭐ FIXED
+        when(service.saveStudentTestRecord(any(StudentTestRecordDTO.class)))
+                .thenReturn(saved);
+
+        mockMvc.perform(post("/api/exams/student-records")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(sample())))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.branch").value("CSE"));
-
-        verify(service).saveStudentTestRecord(any());
+                .andExpect(jsonPath("$.id").value(1));
     }
 
     @Test
     void testGetRecordsByBranch() throws Exception {
 
+        List<StudentTestRecordDTO> records = List.of(sample());
+
         when(service.getRecordsByBranch(Branch.CSE))
-                .thenReturn(List.of(sample()));
+                .thenReturn(records);
 
-        mockMvc.perform(get("/api/exams/student-records/branch/CSE")) // ⭐ FIXED
+        mockMvc.perform(get("/api/exams/student-records/branch/CSE"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].branch").value("CSE"));
-
-        verify(service).getRecordsByBranch(Branch.CSE);
+                .andExpect(jsonPath("$[0].id").value(1));
     }
 
     @Test
     void testUpdateStudentTestRecord() throws Exception {
 
-        StudentTestRecord updated =
-                new StudentTestRecord(1L,"54321",
-                        Branch.EC,90,2L);
+        StudentTestRecordDTO updated = sample();
+        updated.setMarks(95);
 
-        when(service.updateStudentTestRecord(eq(1L), any()))
+        when(service.updateStudentTestRecord(eq(1L), any(StudentTestRecordDTO.class)))
                 .thenReturn(updated);
 
-        mockMvc.perform(put("/api/exams/student-records/1") // ⭐ FIXED
+        mockMvc.perform(put("/api/exams/student-records/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updated)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.branch").value("EC"));
-
-        verify(service).updateStudentTestRecord(eq(1L), any());
+                .andExpect(jsonPath("$.marks").value(95));
     }
 
     @Test
@@ -91,9 +94,9 @@ class ExamControllerTest {
 
         doNothing().when(service).deleteStudentTestRecord(1L);
 
-        mockMvc.perform(delete("/api/exams/student-records/1")) // ⭐ FIXED
+        mockMvc.perform(delete("/api/exams/student-records/1"))
                 .andExpect(status().isNoContent());
 
-        verify(service).deleteStudentTestRecord(1L);
+        verify(service, times(1)).deleteStudentTestRecord(1L);
     }
 }

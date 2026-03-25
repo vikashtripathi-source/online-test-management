@@ -1,6 +1,8 @@
 package com.tech.test.service;
 
+import com.tech.test.dto.OrderDTO;
 import com.tech.test.entity.Order;
+import com.tech.test.mapper.OrderMapper;
 import com.tech.test.repository.OrderRepository;
 import com.tech.test.serviceImpl.OrderServiceImpl;
 import org.junit.jupiter.api.Test;
@@ -24,6 +26,9 @@ public class OrderServiceImplTest {
     private OrderRepository orderRepository;
 
     @Mock
+    private OrderMapper orderMapper;
+
+    @Mock
     private KafkaProducerService kafkaProducerService;
 
     @InjectMocks
@@ -31,16 +36,22 @@ public class OrderServiceImplTest {
 
     @Test
     public void testCreateOrder() {
+        OrderDTO orderDTO = new OrderDTO(null, "Product A", 5, "123 Main St", "City", "12345");
         Order order = new Order(null, "Product A", 5, "123 Main St", "City", "12345");
         Order savedOrder = new Order(1L, "Product A", 5, "123 Main St", "City", "12345");
+        OrderDTO savedOrderDTO = new OrderDTO(1L, "Product A", 5, "123 Main St", "City", "12345");
 
+        when(orderMapper.toEntity(orderDTO)).thenReturn(order);
         when(orderRepository.save(order)).thenReturn(savedOrder);
+        when(orderMapper.toDTO(savedOrder)).thenReturn(savedOrderDTO);
         doNothing().when(kafkaProducerService).sendOrder(savedOrder);
 
-        Order result = orderServiceImpl.createOrder(order);
+        OrderDTO result = orderServiceImpl.createOrder(orderDTO);
 
-        assertEquals(savedOrder, result);
+        assertEquals(savedOrderDTO, result);
+        verify(orderMapper, times(1)).toEntity(orderDTO);
         verify(orderRepository, times(1)).save(order);
+        verify(orderMapper, times(1)).toDTO(savedOrder);
         verify(kafkaProducerService, times(1)).sendOrder(savedOrder);
     }
 
@@ -49,47 +60,64 @@ public class OrderServiceImplTest {
         Order order1 = new Order(1L, "Product A", 5, "123 Main St", "City", "12345");
         Order order2 = new Order(2L, "Product B", 3, "456 Elm St", "Town", "67890");
         List<Order> orders = Arrays.asList(order1, order2);
+
+        OrderDTO orderDTO1 = new OrderDTO(1L, "Product A", 5, "123 Main St", "City", "12345");
+        OrderDTO orderDTO2 = new OrderDTO(2L, "Product B", 3, "456 Elm St", "Town", "67890");
+        List<OrderDTO> orderDTOs = Arrays.asList(orderDTO1, orderDTO2);
+
         when(orderRepository.findAll()).thenReturn(orders);
+        when(orderMapper.toDTO(order1)).thenReturn(orderDTO1);
+        when(orderMapper.toDTO(order2)).thenReturn(orderDTO2);
 
-        List<Order> result = orderServiceImpl.getAllOrders();
+        List<OrderDTO> result = orderServiceImpl.getAllOrders();
 
-        assertEquals(orders, result);
+        assertEquals(orderDTOs, result);
         verify(orderRepository, times(1)).findAll();
+        verify(orderMapper, times(1)).toDTO(order1);
+        verify(orderMapper, times(1)).toDTO(order2);
     }
 
     @Test
     public void testGetOrderById() {
         Order order = new Order(1L, "Product A", 5, "123 Main St", "City", "12345");
+        OrderDTO orderDTO = new OrderDTO(1L, "Product A", 5, "123 Main St", "City", "12345");
         when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
+        when(orderMapper.toDTO(order)).thenReturn(orderDTO);
 
-        Optional<Order> result = orderServiceImpl.getOrderById(1L);
+        Optional<OrderDTO> result = orderServiceImpl.getOrderById(1L);
 
         assertTrue(result.isPresent());
-        assertEquals(order, result.get());
+        assertEquals(orderDTO, result.get());
         verify(orderRepository, times(1)).findById(1L);
+        verify(orderMapper, times(1)).toDTO(order);
     }
 
     @Test
     public void testUpdateOrder() {
         Order existingOrder = new Order(1L, "Product A", 5, "123 Main St", "City", "12345");
-        Order updatedDetails = new Order(null, "Updated Product", 10, "789 Oak St", "Village", "11111");
+        OrderDTO updatedDetails = new OrderDTO(null, "Updated Product", 10, "789 Oak St", "Village", "11111");
         Order updatedOrder = new Order(1L, "Updated Product", 10, "789 Oak St", "Village", "11111");
+        OrderDTO updatedOrderDTO = new OrderDTO(1L, "Updated Product", 10, "789 Oak St", "Village", "11111");
 
         when(orderRepository.findById(1L)).thenReturn(Optional.of(existingOrder));
+        when(orderMapper.toEntity(updatedDetails)).thenReturn(updatedOrder);
         when(orderRepository.save(any(Order.class))).thenReturn(updatedOrder);
+        when(orderMapper.toDTO(updatedOrder)).thenReturn(updatedOrderDTO);
         doNothing().when(kafkaProducerService).sendOrderUpdated(updatedOrder);
 
-        Order result = orderServiceImpl.updateOrder(1L, updatedDetails);
+        OrderDTO result = orderServiceImpl.updateOrder(1L, updatedDetails);
 
-        assertEquals(updatedOrder, result);
+        assertEquals(updatedOrderDTO, result);
         verify(orderRepository, times(1)).findById(1L);
+        verify(orderMapper, times(1)).toEntity(updatedDetails);
         verify(orderRepository, times(1)).save(any(Order.class));
+        verify(orderMapper, times(1)).toDTO(updatedOrder);
         verify(kafkaProducerService, times(1)).sendOrderUpdated(updatedOrder);
     }
 
     @Test
     public void testUpdateOrderNotFound() {
-        Order updatedDetails = new Order(null, "Updated Product", 10, "789 Oak St", "Village", "11111");
+        OrderDTO updatedDetails = new OrderDTO(null, "Updated Product", 10, "789 Oak St", "Village", "11111");
 
         when(orderRepository.findById(1L)).thenReturn(Optional.empty());
 
@@ -100,16 +128,22 @@ public class OrderServiceImplTest {
 
     @Test
     public void testSubmitOrderWithAddress() {
+        OrderDTO orderDTO = new OrderDTO(null, "Product A", 5, "123 Main St", "City", "12345");
         Order order = new Order(null, "Product A", 5, "123 Main St", "City", "12345");
         Order savedOrder = new Order(1L, "Product A", 5, "123 Main St", "City", "12345");
+        OrderDTO savedOrderDTO = new OrderDTO(1L, "Product A", 5, "123 Main St", "City", "12345");
 
+        when(orderMapper.toEntity(orderDTO)).thenReturn(order);
         when(orderRepository.save(order)).thenReturn(savedOrder);
+        when(orderMapper.toDTO(savedOrder)).thenReturn(savedOrderDTO);
         doNothing().when(kafkaProducerService).sendOrder(savedOrder);
 
-        Order result = orderServiceImpl.submitOrderWithAddress(order);
+        OrderDTO result = orderServiceImpl.submitOrderWithAddress(orderDTO);
 
-        assertEquals(savedOrder, result);
+        assertEquals(savedOrderDTO, result);
+        verify(orderMapper, times(1)).toEntity(orderDTO);
         verify(orderRepository, times(1)).save(order);
+        verify(orderMapper, times(1)).toDTO(savedOrder);
         verify(kafkaProducerService, times(1)).sendOrder(savedOrder);
     }
 

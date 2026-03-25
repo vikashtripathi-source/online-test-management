@@ -2,11 +2,12 @@ package com.tech.test.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tech.test.dto.AnswerRequest;
+import com.tech.test.dto.OrderDTO;
 import com.tech.test.dto.SubmitTestRequest;
-import com.tech.test.entity.Order;
 import com.tech.test.entity.Question;
 import com.tech.test.entity.StudentAnswer;
 import com.tech.test.exception.KafkaProcessingException;
+import com.tech.test.mapper.OrderMapper;
 import com.tech.test.repository.QuestionRepository;
 import com.tech.test.repository.StudentAnswerRepository;
 import com.tech.test.serviceImpl.KafkaConsumerServiceImpl;
@@ -37,6 +38,9 @@ public class KafkaConsumerServiceImplTest {
 
     @Mock
     private InventoryService inventoryService;
+
+    @Mock
+    private OrderMapper orderMapper;
 
     @InjectMocks
     private KafkaConsumerServiceImpl kafkaConsumerServiceImpl;
@@ -82,9 +86,17 @@ public class KafkaConsumerServiceImplTest {
 
     @Test
     public void testConsumeOrderTopic() {
-        Order order = new Order(1L, "Product A", 5, "123 Main St", "City", "12345");
+        OrderDTO orderDTO = new OrderDTO();
+        orderDTO.setId(1L);
+        orderDTO.setProductName("Product A");
+        orderDTO.setQuantity(5);
+        orderDTO.setAddress("123 Main St");
+        orderDTO.setCity("City");
+        orderDTO.setZipCode("12345");
 
-        assertDoesNotThrow(() -> kafkaConsumerServiceImpl.consume(order));
+        assertDoesNotThrow(() -> kafkaConsumerServiceImpl.consume(orderDTO));
+        verify(inventoryService, times(1)).updateInventory(orderDTO);
+        verify(emailService, times(1)).sendOrderConfirmation(orderDTO);
     }
 
     @Test

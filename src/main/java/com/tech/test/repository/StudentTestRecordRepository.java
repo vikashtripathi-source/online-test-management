@@ -11,4 +11,5 @@ import java.util.List;
 public interface StudentTestRecordRepository extends JpaRepository<StudentTestRecord, Long> {
 
     List<StudentTestRecord> findByBranch(Branch branch);
+    List<StudentTestRecord> findByStudentId(Long studentId);
 }

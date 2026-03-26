@@ -2,7 +2,6 @@ package com.tech.test.serviceImpl;
 
 import com.tech.test.dto.AnswerRequest;
 import com.tech.test.dto.QuestionDTO;
-import com.tech.test.dto.StudentAnswerDTO;
 import com.tech.test.dto.StudentTestRecordDTO;
 import com.tech.test.dto.SubmitTestRequest;
 import com.tech.test.dto.TestResultResponse;
@@ -15,11 +14,11 @@ import com.tech.test.exception.QuestionException;
 import com.tech.test.exception.StudentRecordException;
 import com.tech.test.exception.TestSubmissionException;
 import com.tech.test.mapper.QuestionMapper;
-import com.tech.test.mapper.StudentAnswerMapper;
 import com.tech.test.mapper.StudentTestRecordMapper;
 import com.tech.test.repository.QuestionRepository;
 import com.tech.test.repository.StudentAnswerRepository;
 import com.tech.test.repository.StudentTestRecordRepository;
+import com.tech.test.service.ExamService;
 import com.tech.test.service.KafkaProducerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -30,14 +29,13 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class ExamServiceImpl implements com.tech.test.service.ExamService {
+public class ExamServiceImpl implements ExamService {
 
     private final QuestionRepository questionRepo;
     private final StudentAnswerRepository answerRepo;
     private final KafkaProducerService kafkaProducerService;
     private final StudentTestRecordRepository studentTestRecordRepository;
     private final QuestionMapper questionMapper;
-    private final StudentAnswerMapper studentAnswerMapper;
     private final StudentTestRecordMapper studentTestRecordMapper;
 
     public QuestionDTO addQuestion(QuestionDTO questionDTO) {
@@ -138,8 +136,11 @@ public class ExamServiceImpl implements com.tech.test.service.ExamService {
                 }
             }
 
-            TestResultResponse response = new TestResultResponse(request.getStudentId(), score, total);
-            kafkaProducerService.sendTestSubmission(request);
+            TestResultResponse response = new TestResultResponse();
+
+            response.setStudentId(request.getStudentId());
+            response.setScore(score);
+            response.setTotalQuestions(total);
 
             return response;
         } catch (TestSubmissionException e) {
@@ -218,5 +219,61 @@ public class ExamServiceImpl implements com.tech.test.service.ExamService {
         } catch (Exception e) {
             throw new StudentRecordException("Failed to retrieve records by branch " + branch + ": " + e.getMessage(), e);
         }
+    }
+
+    @Override
+    public List<QuestionDTO> getQuestionsByBranch(String branch) {
+
+        Branch b = Branch.valueOf(branch.toUpperCase());
+
+        List<Question> questions =
+                questionRepo.findByBranch(b);
+
+        return questions.stream()
+                .map(q -> {
+
+                    QuestionDTO dto = new QuestionDTO();
+
+                    dto.setId(q.getId());
+                    dto.setQuestion(q.getQuestion());
+                    dto.setOptionA(q.getOptionA());
+                    dto.setOptionB(q.getOptionB());
+                    dto.setOptionC(q.getOptionC());
+                    dto.setOptionD(q.getOptionD());
+                    dto.setBranch(q.getBranch().name());
+
+                    return dto;
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public TestResultResponse getResult(Long studentId) {
+
+        List<StudentTestRecord> records =
+                studentTestRecordRepository.findByStudentId(studentId);
+
+        TestResultResponse res = new TestResultResponse();
+
+        res.setTotalTests(records.size());
+
+        int totalMarks = records.stream()
+                .mapToInt(StudentTestRecord::getMarks)
+                .sum();
+
+        res.setTotalMarks(totalMarks);
+
+        double avg = records.stream()
+                .mapToInt(StudentTestRecord::getMarks)
+                .average()
+                .orElse(0);
+
+        res.setAverageMarks(avg);
+
+        if (!records.isEmpty()) {
+            res.setBranch(records.get(0).getBranch().name());
+        }
+
+        return res;
     }
 }

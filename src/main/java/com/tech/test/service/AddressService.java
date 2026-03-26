@@ -19,4 +19,6 @@ public interface AddressService {
     void deleteAddress(Long id);
 
     List<AddressDTO> getAddressesByType(AddressType addressType);
+
+    List<AddressDTO> getByStudent(Long studentId);
 }

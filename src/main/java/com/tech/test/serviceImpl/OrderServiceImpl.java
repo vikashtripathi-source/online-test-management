@@ -11,6 +11,7 @@ import com.tech.test.service.KafkaProducerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -40,6 +41,7 @@ public class OrderServiceImpl implements com.tech.test.service.OrderService {
             }
             
             Order order = orderMapper.toEntity(orderDTO);
+            order.setCreatedDate(LocalDateTime.now()); // Set creation date
             Order savedOrder = repository.save(order);
             
             try {
@@ -145,5 +147,31 @@ public class OrderServiceImpl implements com.tech.test.service.OrderService {
         } catch (Exception e) {
             throw new OrderException("Failed to submit order with address: " + e.getMessage(), e);
         }
+    }
+
+    @Override
+    public List<OrderDTO> getOrdersByStudent(Long studentId) {
+
+        List<Order> orders = repository.findByStudentId(studentId);
+
+        return orders.stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
+
+    private OrderDTO mapToDTO(Order order) {
+
+        OrderDTO dto = new OrderDTO();
+
+        dto.setId(order.getId());
+        dto.setProductName(order.getProductName());
+        dto.setQuantity(order.getQuantity());
+        dto.setAddress(order.getAddress());
+        dto.setCity(order.getCity());
+        dto.setZipCode(order.getZipCode());
+        dto.setCreatedDate(order.getCreatedDate());
+        dto.setStudentId(order.getStudentId());
+
+        return dto;
     }
 }

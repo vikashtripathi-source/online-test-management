@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -28,4 +30,8 @@ public class OrderDTO {
     
     @NotBlank(message = "Zip code cannot be blank")
     private String zipCode;
+
+    private LocalDateTime createdDate;
+
+    private Long studentId;
 }

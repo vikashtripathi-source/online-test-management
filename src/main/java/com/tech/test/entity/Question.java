@@ -1,9 +1,7 @@
 package com.tech.test.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.tech.test.enums.Branch;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -38,4 +36,7 @@ public class Question {
 
     @NotBlank(message = "Correct answer cannot be blank")
     private String correctAnswer;
+
+    @Enumerated(EnumType.STRING)
+    private Branch branch;
 }

@@ -18,4 +18,7 @@ public interface OrderService {
     void deleteOrder(Long id);
 
     OrderDTO submitOrderWithAddress(OrderDTO orderDTO);
+
+    List<OrderDTO> getOrdersByStudent(Long studentId);
+
 }

@@ -33,4 +33,6 @@ public class AddressDTO {
     
     private String phoneNumber;
     private String email;
+
+    private Long studentId;
 }

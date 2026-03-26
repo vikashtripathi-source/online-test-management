@@ -123,4 +123,36 @@ public class AddressServiceImpl implements AddressService {
             throw new AddressException("Failed to retrieve addresses by type " + addressType + ": " + e.getMessage(), e);
         }
     }
+
+    @Override
+    public List<AddressDTO> getByStudent(Long studentId) {
+
+        List<Address> addresses =
+                addressRepository.findAllByStudentId(studentId);
+
+
+
+
+        return addresses.stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
+
+    private AddressDTO mapToDTO(Address address) {
+
+        AddressDTO dto = new AddressDTO();
+
+        dto.setId(address.getId());
+        dto.setStreetAddress(address.getStreetAddress());
+        dto.setCity(address.getCity());
+        dto.setState(address.getState());
+        dto.setZipCode(address.getZipCode());
+        dto.setCountry(address.getCountry());
+        dto.setAddressType(address.getAddressType());
+        dto.setPhoneNumber(address.getPhoneNumber());
+        dto.setEmail(address.getEmail());
+        dto.setStudentId(address.getStudentId());
+
+        return dto;
+    }
 }

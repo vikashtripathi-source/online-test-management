@@ -31,4 +31,6 @@ public class QuestionDTO {
 
     @NotBlank(message = "Correct answer cannot be blank")
     private String correctAnswer;
+
+    private String branch;
 }

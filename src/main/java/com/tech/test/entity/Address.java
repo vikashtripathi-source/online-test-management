@@ -33,5 +33,6 @@ public class Address {
     private String phoneNumber;
 
     private String email;
-}
 
+    private Long studentId; // Added for report linking
+}

@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Data
 @Table(name="orders")
@@ -22,4 +24,9 @@ public class Order {
     private String address;
     private String city;
     private String zipCode;
+
+    @Column(name = "created_date")
+    private LocalDateTime createdDate;
+
+    private Long studentId; // Added for report linking
 }

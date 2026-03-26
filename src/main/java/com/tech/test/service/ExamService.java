@@ -28,4 +28,8 @@ public interface ExamService {
     void deleteStudentTestRecord(Long id);
 
     List<StudentTestRecordDTO> getRecordsByBranch(Branch branch);
+
+    List<QuestionDTO> getQuestionsByBranch(String branch);
+
+    TestResultResponse getResult(Long studentId);
 }

@@ -85,4 +85,18 @@ public class ExamController {
             @PathVariable Branch branch) {
         return ResponseEntity.ok(service.getRecordsByBranch(branch));
     }
+
+    @GetMapping("/questions/branch/{branch}")
+    public ResponseEntity<List<QuestionDTO>> getByBranch(
+            @PathVariable String branch) {
+
+        return ResponseEntity.ok(service.getQuestionsByBranch(branch));
+    }
+
+    @GetMapping("/results/{studentId}")
+    public ResponseEntity<TestResultResponse> getResult(
+            @PathVariable Long studentId) {
+
+        return ResponseEntity.ok(service.getResult(studentId));
+    }
 }

@@ -1,5 +1,6 @@
 package com.tech.test.controller;
 
+import com.tech.test.dto.JwtResponse;
 import com.tech.test.dto.LoginRequest;
 import com.tech.test.dto.StudentDTO;
 import com.tech.test.service.StudentService;
@@ -20,7 +21,7 @@ public class StudentController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<StudentDTO> login(@RequestBody LoginRequest req) {
+    public ResponseEntity<JwtResponse> login(@RequestBody LoginRequest req) {
         return ResponseEntity.ok(service.login(req));
     }
 

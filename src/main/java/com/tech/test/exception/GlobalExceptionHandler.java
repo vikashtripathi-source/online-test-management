@@ -3,14 +3,84 @@ package com.tech.test.exception;
 import com.tech.test.dto.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    /**
-     * Handle ResourceNotFoundException - 404 Not Found
-     */
+    // Authentication Exceptions
+    @ExceptionHandler(StudentNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleStudentNotFoundException(StudentNotFoundException ex) {
+        ErrorResponse error = new ErrorResponse(
+                ex.getMessage(),
+                HttpStatus.NOT_FOUND.value()
+        );
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(InvalidPasswordException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidPasswordException(InvalidPasswordException ex) {
+        ErrorResponse error = new ErrorResponse(
+                ex.getMessage(),
+                HttpStatus.UNAUTHORIZED.value()
+        );
+        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(EmailAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleEmailAlreadyExistsException(EmailAlreadyExistsException ex) {
+        ErrorResponse error = new ErrorResponse(
+                ex.getMessage(),
+                HttpStatus.CONFLICT.value()
+        );
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(UnauthorizedAccessException.class)
+    public ResponseEntity<ErrorResponse> handleUnauthorizedAccessException(UnauthorizedAccessException ex) {
+        ErrorResponse error = new ErrorResponse(
+                ex.getMessage(),
+                HttpStatus.UNAUTHORIZED.value()
+        );
+        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(DuplicateResourceException.class)
+    public ResponseEntity<ErrorResponse> handleDuplicateResourceException(DuplicateResourceException ex) {
+        ErrorResponse error = new ErrorResponse(
+                ex.getMessage(),
+                HttpStatus.CONFLICT.value()
+        );
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+    }
+
+    // Security Exceptions
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ErrorResponse> handleAuthenticationException(AuthenticationException ex) {
+        ErrorResponse error = new ErrorResponse(
+                "Authentication failed: " + ex.getMessage(),
+                HttpStatus.UNAUTHORIZED.value()
+        );
+        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException ex) {
+        ErrorResponse error = new ErrorResponse(
+                "Access denied: You don't have permission to access this resource",
+                HttpStatus.FORBIDDEN.value()
+        );
+        return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
+    }
+
+    // Existing Business Exceptions
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleResourceNotFoundException(ResourceNotFoundException ex) {
         ErrorResponse error = new ErrorResponse(
@@ -20,9 +90,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
-    /**
-     * Handle InvalidDataException - 400 Bad Request
-     */
     @ExceptionHandler(InvalidDataException.class)
     public ResponseEntity<ErrorResponse> handleInvalidDataException(InvalidDataException ex) {
         ErrorResponse error = new ErrorResponse(
@@ -32,9 +99,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
-    /**
-     * Handle AddressException - 404 Not Found
-     */
     @ExceptionHandler(AddressException.class)
     public ResponseEntity<ErrorResponse> handleAddressException(AddressException ex) {
         ErrorResponse error = new ErrorResponse(
@@ -44,9 +108,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
-    /**
-     * Handle QuestionException - 404 Not Found
-     */
     @ExceptionHandler(QuestionException.class)
     public ResponseEntity<ErrorResponse> handleQuestionException(QuestionException ex) {
         ErrorResponse error = new ErrorResponse(
@@ -56,9 +117,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
-    /**
-     * Handle OrderException - 404 Not Found
-     */
     @ExceptionHandler(OrderException.class)
     public ResponseEntity<ErrorResponse> handleOrderException(OrderException ex) {
         ErrorResponse error = new ErrorResponse(
@@ -68,9 +126,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
-    /**
-     * Handle InventoryException - 404 Not Found
-     */
     @ExceptionHandler(InventoryException.class)
     public ResponseEntity<ErrorResponse> handleInventoryException(InventoryException ex) {
         ErrorResponse error = new ErrorResponse(
@@ -80,9 +135,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
-    /**
-     * Handle StudentRecordException - 404 Not Found
-     */
     @ExceptionHandler(StudentRecordException.class)
     public ResponseEntity<ErrorResponse> handleStudentRecordException(StudentRecordException ex) {
         ErrorResponse error = new ErrorResponse(
@@ -92,9 +144,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
-    /**
-     * Handle KafkaException - 500 Internal Server Error
-     */
     @ExceptionHandler(KafkaException.class)
     public ResponseEntity<ErrorResponse> handleKafkaException(KafkaException ex) {
         ErrorResponse error = new ErrorResponse(
@@ -104,9 +153,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    /**
-     * Handle BusinessLogicException - 409 Conflict
-     */
     @ExceptionHandler(BusinessLogicException.class)
     public ResponseEntity<ErrorResponse> handleBusinessLogicException(BusinessLogicException ex) {
         ErrorResponse error = new ErrorResponse(
@@ -116,9 +162,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.CONFLICT);
     }
 
-    /**
-     * Handle TestSubmissionException - 400 Bad Request
-     */
     @ExceptionHandler(TestSubmissionException.class)
     public ResponseEntity<ErrorResponse> handleTestSubmissionException(TestSubmissionException ex) {
         ErrorResponse error = new ErrorResponse(
@@ -128,9 +171,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
-    /**
-     * Handle KafkaProcessingException - 500 Internal Server Error
-     */
     @ExceptionHandler(KafkaProcessingException.class)
     public ResponseEntity<ErrorResponse> handleKafkaProcessingException(KafkaProcessingException ex) {
         ErrorResponse error = new ErrorResponse(
@@ -140,25 +180,31 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    /**
-     * Handle validation exceptions - 400 Bad Request
-     */
-    @ExceptionHandler(org.springframework.web.bind.MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidationExceptions(org.springframework.web.bind.MethodArgumentNotValidException ex) {
-        StringBuilder message = new StringBuilder("Validation failed: ");
-        ex.getBindingResult().getFieldErrors().forEach(error ->
-            message.append(error.getField()).append(" - ").append(error.getDefaultMessage()).append("; "));
-        ErrorResponse error = new ErrorResponse(message.toString(), HttpStatus.BAD_REQUEST.value());
-        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    // Validation Exception
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, Object>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getFieldErrors().forEach((error) -> {
+            String fieldName = error.getField();
+            String errorMessage = error.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
+        });
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Validation failed");
+        response.put("status", HttpStatus.BAD_REQUEST.value());
+        response.put("error", "Validation Error");
+        response.put("timestamp", java.time.LocalDateTime.now());
+        response.put("validationErrors", errors);
+
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
-    /**
-     * Handle generic exceptions - 500 Internal Server Error
-     */
+    // Global Exception Handler
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
         ErrorResponse error = new ErrorResponse(
-                "An unexpected error occurred: " + ex.getMessage(),
+                "An unexpected error occurred. Please try again later.",
                 HttpStatus.INTERNAL_SERVER_ERROR.value()
         );
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);

@@ -4,7 +4,9 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
-@Table(name="students")
+@Table(name="students", uniqueConstraints = {
+    @UniqueConstraint(columnNames = "email")
+})
 @Data
 public class Student {
 

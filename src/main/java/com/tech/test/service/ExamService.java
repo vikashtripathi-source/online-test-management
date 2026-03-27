@@ -1,12 +1,10 @@
 package com.tech.test.service;
 
 import com.tech.test.dto.QuestionDTO;
-import com.tech.test.dto.StudentAnswerDTO;
 import com.tech.test.dto.StudentTestRecordDTO;
 import com.tech.test.dto.SubmitTestRequest;
 import com.tech.test.dto.TestResultResponse;
 import com.tech.test.enums.Branch;
-
 import java.util.List;
 
 public interface ExamService {

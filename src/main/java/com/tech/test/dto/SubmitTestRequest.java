@@ -1,11 +1,10 @@
 package com.tech.test.dto;
 
-
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import lombok.Data;
 import java.util.List;
+import lombok.Data;
 
 @Data
 public class SubmitTestRequest {
@@ -15,6 +14,4 @@ public class SubmitTestRequest {
     @NotEmpty(message = "Answers list cannot be empty")
     @Valid
     private List<AnswerRequest> answers;
-
-
 }

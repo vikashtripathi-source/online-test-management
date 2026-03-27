@@ -3,8 +3,8 @@ package com.tech.test.serviceImpl;
 import com.tech.test.dto.OrderDTO;
 import com.tech.test.entity.Inventory;
 import com.tech.test.exception.BusinessLogicException;
-import com.tech.test.exception.InventoryException;
 import com.tech.test.exception.InvalidDataException;
+import com.tech.test.exception.InventoryException;
 import com.tech.test.mapper.OrderMapper;
 import com.tech.test.repository.InventoryRepository;
 import com.tech.test.service.InventoryService;
@@ -33,16 +33,22 @@ public class InventoryServiceImpl implements InventoryService {
                 throw new InvalidDataException("Quantity must be a positive number");
             }
 
-            Inventory inventory = inventoryRepository.findByProductName(orderDTO.getProductName())
-                    .orElseThrow(() -> new InventoryException("Product not found in inventory: " + orderDTO.getProductName()));
+            Inventory inventory =
+                    inventoryRepository
+                            .findByProductName(orderDTO.getProductName())
+                            .orElseThrow(
+                                    () ->
+                                            new InventoryException(
+                                                    "Product not found in inventory: "
+                                                            + orderDTO.getProductName()));
 
             if (inventory.getStockQuantity() < orderDTO.getQuantity()) {
                 throw new BusinessLogicException(
-                        String.format("Insufficient stock for product '%s'. Available: %d, Requested: %d",
+                        String.format(
+                                "Insufficient stock for product '%s'. Available: %d, Requested: %d",
                                 orderDTO.getProductName(),
                                 inventory.getStockQuantity(),
-                                orderDTO.getQuantity())
-                );
+                                orderDTO.getQuantity()));
             }
 
             inventory.setStockQuantity(inventory.getStockQuantity() - orderDTO.getQuantity());

@@ -1,9 +1,9 @@
 package com.tech.test.serviceImpl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tech.test.dto.AnswerRequest;
 import com.tech.test.dto.OrderDTO;
 import com.tech.test.dto.SubmitTestRequest;
-import com.tech.test.dto.AnswerRequest;
 import com.tech.test.entity.Question;
 import com.tech.test.entity.StudentAnswer;
 import com.tech.test.exception.KafkaException;
@@ -26,7 +26,12 @@ public class KafkaConsumerServiceImpl implements com.tech.test.service.KafkaCons
     private final InventoryService inventoryService;
     private final OrderMapper orderMapper;
 
-    public KafkaConsumerServiceImpl(QuestionRepository questionRepo, StudentAnswerRepository answerRepo, EmailService emailService, InventoryService inventoryService, OrderMapper orderMapper) {
+    public KafkaConsumerServiceImpl(
+            QuestionRepository questionRepo,
+            StudentAnswerRepository answerRepo,
+            EmailService emailService,
+            InventoryService inventoryService,
+            OrderMapper orderMapper) {
         this.questionRepo = questionRepo;
         this.answerRepo = answerRepo;
         this.emailService = emailService;
@@ -61,7 +66,8 @@ public class KafkaConsumerServiceImpl implements com.tech.test.service.KafkaCons
                     throw new TestSubmissionException("Invalid question ID in answer");
                 }
                 if (ans.getSelectedAnswer() == null || ans.getSelectedAnswer().trim().isEmpty()) {
-                    throw new TestSubmissionException("Empty selected answer for question ID: " + ans.getQuestionId());
+                    throw new TestSubmissionException(
+                            "Empty selected answer for question ID: " + ans.getQuestionId());
                 }
 
                 Question q = questionRepo.findById(ans.getQuestionId()).orElse(null);
@@ -78,7 +84,8 @@ public class KafkaConsumerServiceImpl implements com.tech.test.service.KafkaCons
                         score++;
                     }
                 } else {
-                    throw new TestSubmissionException("Question not found with ID: " + ans.getQuestionId());
+                    throw new TestSubmissionException(
+                            "Question not found with ID: " + ans.getQuestionId());
                 }
             }
 
@@ -88,7 +95,8 @@ public class KafkaConsumerServiceImpl implements com.tech.test.service.KafkaCons
         } catch (TestSubmissionException e) {
             throw new KafkaException("Test submission processing failed: " + e.getMessage(), e);
         } catch (Exception e) {
-            throw new KafkaException("Error processing Kafka test submission message: " + e.getMessage(), e);
+            throw new KafkaException(
+                    "Error processing Kafka test submission message: " + e.getMessage(), e);
         }
     }
 
@@ -119,7 +127,8 @@ public class KafkaConsumerServiceImpl implements com.tech.test.service.KafkaCons
         try {
             emailService.sendOrderConfirmation(orderDTO);
         } catch (Exception e) {
-            throw new KafkaException("Failed to send order confirmation email: " + e.getMessage(), e);
+            throw new KafkaException(
+                    "Failed to send order confirmation email: " + e.getMessage(), e);
         }
     }
 

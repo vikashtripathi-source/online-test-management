@@ -16,6 +16,6 @@ public interface AddressMapper {
 
     // For collections
     java.util.List<AddressDTO> toDTOList(java.util.List<Address> addresses);
+
     java.util.List<Address> toEntityList(java.util.List<AddressDTO> addressDTOs);
 }
-

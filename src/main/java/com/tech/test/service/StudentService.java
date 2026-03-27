@@ -12,8 +12,8 @@ public interface StudentService {
     JwtResponse login(LoginRequest request);
 
     StudentDTO getById(Long id);
-    
+
     String uploadImage(Long studentId, MultipartFile image);
-    
+
     byte[] getImage(Long studentId);
 }

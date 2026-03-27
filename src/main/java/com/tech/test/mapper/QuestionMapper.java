@@ -15,6 +15,6 @@ public interface QuestionMapper {
     Question toEntity(QuestionDTO questionDTO);
 
     java.util.List<QuestionDTO> toDTOList(java.util.List<Question> questions);
+
     java.util.List<Question> toEntityList(java.util.List<QuestionDTO> questionDTOs);
 }
-

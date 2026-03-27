@@ -8,25 +8,21 @@ import com.tech.test.exception.OrderException;
 import com.tech.test.mapper.OrderMapper;
 import com.tech.test.repository.OrderRepository;
 import com.tech.test.service.KafkaProducerService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 @Service
 public class OrderServiceImpl implements com.tech.test.service.OrderService {
 
-    @Autowired
-    private OrderRepository repository;
+    @Autowired private OrderRepository repository;
 
-    @Autowired
-    private OrderMapper orderMapper;
+    @Autowired private OrderMapper orderMapper;
 
-    @Autowired
-    private KafkaProducerService producer;
+    @Autowired private KafkaProducerService producer;
 
     public OrderDTO createOrder(OrderDTO orderDTO) {
         try {
@@ -39,17 +35,18 @@ public class OrderServiceImpl implements com.tech.test.service.OrderService {
             if (orderDTO.getQuantity() <= 0) {
                 throw new InvalidDataException("Quantity must be a positive number");
             }
-            
+
             Order order = orderMapper.toEntity(orderDTO);
             order.setCreatedDate(LocalDateTime.now()); // Set creation date
             Order savedOrder = repository.save(order);
-            
+
             try {
                 producer.sendOrder(savedOrder);
             } catch (Exception e) {
-                throw new KafkaException("Failed to send order event to Kafka: " + e.getMessage(), e);
+                throw new KafkaException(
+                        "Failed to send order event to Kafka: " + e.getMessage(), e);
             }
-            
+
             return orderMapper.toDTO(savedOrder);
         } catch (InvalidDataException | KafkaException e) {
             throw e;
@@ -73,12 +70,12 @@ public class OrderServiceImpl implements com.tech.test.service.OrderService {
             if (id == null || id <= 0) {
                 throw new InvalidDataException("Order ID must be a positive number");
             }
-            return repository.findById(id)
-                    .map(orderMapper::toDTO);
+            return repository.findById(id).map(orderMapper::toDTO);
         } catch (InvalidDataException e) {
             throw e;
         } catch (Exception e) {
-            throw new OrderException("Failed to retrieve order with ID " + id + ": " + e.getMessage(), e);
+            throw new OrderException(
+                    "Failed to retrieve order with ID " + id + ": " + e.getMessage(), e);
         }
     }
 
@@ -90,19 +87,20 @@ public class OrderServiceImpl implements com.tech.test.service.OrderService {
             if (orderDTO == null) {
                 throw new InvalidDataException("Order DTO cannot be null");
             }
-            
+
             Optional<Order> optionalOrder = repository.findById(id);
             if (optionalOrder.isPresent()) {
                 Order updatedOrder = orderMapper.toEntity(orderDTO);
                 updatedOrder.setId(id);
                 Order saved = repository.save(updatedOrder);
-                
+
                 try {
                     producer.sendOrderUpdated(saved);
                 } catch (Exception e) {
-                    throw new KafkaException("Failed to send order update event to Kafka: " + e.getMessage(), e);
+                    throw new KafkaException(
+                            "Failed to send order update event to Kafka: " + e.getMessage(), e);
                 }
-                
+
                 return orderMapper.toDTO(saved);
             } else {
                 throw new OrderException("Order not found with ID: " + id);
@@ -110,7 +108,8 @@ public class OrderServiceImpl implements com.tech.test.service.OrderService {
         } catch (OrderException | InvalidDataException | KafkaException e) {
             throw e;
         } catch (Exception e) {
-            throw new OrderException("Failed to update order with ID " + id + ": " + e.getMessage(), e);
+            throw new OrderException(
+                    "Failed to update order with ID " + id + ": " + e.getMessage(), e);
         }
     }
 
@@ -123,16 +122,18 @@ public class OrderServiceImpl implements com.tech.test.service.OrderService {
                 throw new OrderException("Order not found with ID: " + id);
             }
             repository.deleteById(id);
-            
+
             try {
                 producer.sendOrderDeleted(id);
             } catch (Exception e) {
-                throw new KafkaException("Failed to send order delete event to Kafka: " + e.getMessage(), e);
+                throw new KafkaException(
+                        "Failed to send order delete event to Kafka: " + e.getMessage(), e);
             }
         } catch (OrderException | InvalidDataException | KafkaException e) {
             throw e;
         } catch (Exception e) {
-            throw new OrderException("Failed to delete order with ID " + id + ": " + e.getMessage(), e);
+            throw new OrderException(
+                    "Failed to delete order with ID " + id + ": " + e.getMessage(), e);
         }
     }
 
@@ -154,9 +155,7 @@ public class OrderServiceImpl implements com.tech.test.service.OrderService {
 
         List<Order> orders = repository.findByStudentId(studentId);
 
-        return orders.stream()
-                .map(this::mapToDTO)
-                .collect(Collectors.toList());
+        return orders.stream().map(this::mapToDTO).collect(Collectors.toList());
     }
 
     private OrderDTO mapToDTO(Order order) {

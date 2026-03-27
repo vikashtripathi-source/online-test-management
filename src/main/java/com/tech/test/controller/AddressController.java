@@ -6,11 +6,10 @@ import com.tech.test.service.AddressService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/addresses")
@@ -39,15 +38,16 @@ public class AddressController {
     @GetMapping("/{id}")
     @Operation(summary = "Get address by ID")
     public ResponseEntity<AddressDTO> getAddressById(@PathVariable Long id) {
-        return addressService.getAddressById(id)
+        return addressService
+                .getAddressById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "Update an existing address")
-    public ResponseEntity<AddressDTO> updateAddress(@PathVariable Long id,
-                                                 @Valid @RequestBody AddressDTO addressDTO) {
+    public ResponseEntity<AddressDTO> updateAddress(
+            @PathVariable Long id, @Valid @RequestBody AddressDTO addressDTO) {
         AddressDTO updatedAddress = addressService.updateAddress(id, addressDTO);
         return ResponseEntity.ok(updatedAddress);
     }

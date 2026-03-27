@@ -8,11 +8,10 @@ import com.tech.test.repository.AddressRepository;
 import com.tech.test.repository.OrderRepository;
 import com.tech.test.repository.StudentTestRecordRepository;
 import com.tech.test.service.ReportService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -42,7 +41,10 @@ public class ReportServiceImpl implements ReportService {
                 dto.setStudentName(student.getRollNumber());
                 dto.setBranch(student.getBranch());
                 dto.setOrderDetail("No Order");
-                dto.setAddress(address != null ? address.getStreetAddress() + "," + address.getCity() : "No Address");
+                dto.setAddress(
+                        address != null
+                                ? address.getStreetAddress() + "," + address.getCity()
+                                : "No Address");
                 dto.setStudentMobileNumber(address != null ? address.getPhoneNumber() : "No Phone");
 
                 reportList.add(dto);
@@ -55,9 +57,13 @@ public class ReportServiceImpl implements ReportService {
                     dto.setStudentName(student.getRollNumber());
                     dto.setBranch(student.getBranch());
                     dto.setOrderDetail(order.getProductName());
-                    dto.setAddress(address != null ? address.getStreetAddress() + "," + address.getCity() : "No Address");
+                    dto.setAddress(
+                            address != null
+                                    ? address.getStreetAddress() + "," + address.getCity()
+                                    : "No Address");
                     dto.setOrderCreateDate(order.getCreatedDate());
-                    dto.setStudentMobileNumber(address != null ? address.getPhoneNumber() : "No Phone");
+                    dto.setStudentMobileNumber(
+                            address != null ? address.getPhoneNumber() : "No Phone");
 
                     reportList.add(dto);
                 }

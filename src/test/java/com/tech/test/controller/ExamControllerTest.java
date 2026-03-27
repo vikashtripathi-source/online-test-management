@@ -1,10 +1,16 @@
 package com.tech.test.controller;
 
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tech.test.dto.StudentTestRecordDTO;
 import com.tech.test.enums.Branch;
 import com.tech.test.service.ExamService;
 import com.tech.test.service.KafkaProducerService;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -12,27 +18,16 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.List;
-
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
 @WebMvcTest(ExamController.class)
 class ExamControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+    @Autowired private MockMvc mockMvc;
 
-    @MockBean
-    private ExamService service;
+    @MockBean private ExamService service;
 
-    @MockBean
-    private KafkaProducerService kafkaProducerService;
+    @MockBean private KafkaProducerService kafkaProducerService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    @Autowired private ObjectMapper objectMapper;
 
     private StudentTestRecordDTO sample() {
         StudentTestRecordDTO dto = new StudentTestRecordDTO();
@@ -50,12 +45,12 @@ class ExamControllerTest {
         StudentTestRecordDTO saved = sample();
         saved.setId(1L);
 
-        when(service.saveStudentTestRecord(any(StudentTestRecordDTO.class)))
-                .thenReturn(saved);
+        when(service.saveStudentTestRecord(any(StudentTestRecordDTO.class))).thenReturn(saved);
 
-        mockMvc.perform(post("/api/exams/student-records")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(sample())))
+        mockMvc.perform(
+                        post("/api/exams/student-records")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(sample())))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(1));
     }
@@ -65,8 +60,7 @@ class ExamControllerTest {
 
         List<StudentTestRecordDTO> records = List.of(sample());
 
-        when(service.getRecordsByBranch(Branch.CSE))
-                .thenReturn(records);
+        when(service.getRecordsByBranch(Branch.CSE)).thenReturn(records);
 
         mockMvc.perform(get("/api/exams/student-records/branch/CSE"))
                 .andExpect(status().isOk())
@@ -82,9 +76,10 @@ class ExamControllerTest {
         when(service.updateStudentTestRecord(eq(1L), any(StudentTestRecordDTO.class)))
                 .thenReturn(updated);
 
-        mockMvc.perform(put("/api/exams/student-records/1")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updated)))
+        mockMvc.perform(
+                        put("/api/exams/student-records/1")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(updated)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.marks").value(95));
     }
@@ -94,8 +89,7 @@ class ExamControllerTest {
 
         doNothing().when(service).deleteStudentTestRecord(1L);
 
-        mockMvc.perform(delete("/api/exams/student-records/1"))
-                .andExpect(status().isNoContent());
+        mockMvc.perform(delete("/api/exams/student-records/1")).andExpect(status().isNoContent());
 
         verify(service, times(1)).deleteStudentTestRecord(1L);
     }

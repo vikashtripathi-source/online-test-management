@@ -16,6 +16,6 @@ public interface InventoryMapper {
 
     // For collections
     java.util.List<InventoryDTO> toDTOList(java.util.List<Inventory> inventories);
+
     java.util.List<Inventory> toEntityList(java.util.List<InventoryDTO> inventoryDTOs);
 }
-

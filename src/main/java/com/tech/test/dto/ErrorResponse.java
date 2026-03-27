@@ -1,6 +1,5 @@
 package com.tech.test.dto;
 
-
 import java.time.LocalDateTime;
 
 public class ErrorResponse {

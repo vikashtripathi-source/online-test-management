@@ -8,8 +8,7 @@ import org.springframework.kafka.annotation.EnableKafka;
 @EnableKafka
 public class OnlineTestManagementApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(OnlineTestManagementApplication.class, args);
-	}
-
+    public static void main(String[] args) {
+        SpringApplication.run(OnlineTestManagementApplication.class, args);
+    }
 }

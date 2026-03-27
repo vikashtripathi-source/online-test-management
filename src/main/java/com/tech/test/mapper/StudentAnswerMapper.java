@@ -15,6 +15,6 @@ public interface StudentAnswerMapper {
     StudentAnswer toEntity(StudentAnswerDTO studentAnswerDTO);
 
     java.util.List<StudentAnswerDTO> toDTOList(java.util.List<StudentAnswer> studentAnswers);
+
     java.util.List<StudentAnswer> toEntityList(java.util.List<StudentAnswerDTO> studentAnswerDTOs);
 }
-

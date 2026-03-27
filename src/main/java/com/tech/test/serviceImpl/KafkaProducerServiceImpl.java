@@ -29,7 +29,10 @@ public class KafkaProducerServiceImpl implements com.tech.test.service.KafkaProd
         } catch (KafkaException e) {
             throw e;
         } catch (Exception e) {
-            throw new KafkaException("Failed to send test submission to Kafka topic 'submit-test-topic': " + e.getMessage(), e);
+            throw new KafkaException(
+                    "Failed to send test submission to Kafka topic 'submit-test-topic': "
+                            + e.getMessage(),
+                    e);
         }
     }
 
@@ -45,7 +48,8 @@ public class KafkaProducerServiceImpl implements com.tech.test.service.KafkaProd
         } catch (KafkaException e) {
             throw e;
         } catch (Exception e) {
-            throw new KafkaException("Failed to send order to Kafka topic 'order-topic': " + e.getMessage(), e);
+            throw new KafkaException(
+                    "Failed to send order to Kafka topic 'order-topic': " + e.getMessage(), e);
         }
     }
 
@@ -61,7 +65,10 @@ public class KafkaProducerServiceImpl implements com.tech.test.service.KafkaProd
         } catch (KafkaException e) {
             throw e;
         } catch (Exception e) {
-            throw new KafkaException("Failed to send question added event to Kafka topic 'question-added-topic': " + e.getMessage(), e);
+            throw new KafkaException(
+                    "Failed to send question added event to Kafka topic 'question-added-topic': "
+                            + e.getMessage(),
+                    e);
         }
     }
 
@@ -74,7 +81,10 @@ public class KafkaProducerServiceImpl implements com.tech.test.service.KafkaProd
         } catch (KafkaException e) {
             throw e;
         } catch (Exception e) {
-            throw new KafkaException("Failed to send question deleted event to Kafka topic 'question-deleted-topic': " + e.getMessage(), e);
+            throw new KafkaException(
+                    "Failed to send question deleted event to Kafka topic 'question-deleted-topic': "
+                            + e.getMessage(),
+                    e);
         }
     }
 
@@ -90,7 +100,10 @@ public class KafkaProducerServiceImpl implements com.tech.test.service.KafkaProd
         } catch (KafkaException e) {
             throw e;
         } catch (Exception e) {
-            throw new KafkaException("Failed to send student record updated event to Kafka topic 'student-record-updated-topic': " + e.getMessage(), e);
+            throw new KafkaException(
+                    "Failed to send student record updated event to Kafka topic 'student-record-updated-topic': "
+                            + e.getMessage(),
+                    e);
         }
     }
 
@@ -103,7 +116,10 @@ public class KafkaProducerServiceImpl implements com.tech.test.service.KafkaProd
         } catch (KafkaException e) {
             throw e;
         } catch (Exception e) {
-            throw new KafkaException("Failed to send student record deleted event to Kafka topic 'student-record-deleted-topic': " + e.getMessage(), e);
+            throw new KafkaException(
+                    "Failed to send student record deleted event to Kafka topic 'student-record-deleted-topic': "
+                            + e.getMessage(),
+                    e);
         }
     }
 
@@ -119,7 +135,10 @@ public class KafkaProducerServiceImpl implements com.tech.test.service.KafkaProd
         } catch (KafkaException e) {
             throw e;
         } catch (Exception e) {
-            throw new KafkaException("Failed to send order updated event to Kafka topic 'order-updated-topic': " + e.getMessage(), e);
+            throw new KafkaException(
+                    "Failed to send order updated event to Kafka topic 'order-updated-topic': "
+                            + e.getMessage(),
+                    e);
         }
     }
 
@@ -132,7 +151,10 @@ public class KafkaProducerServiceImpl implements com.tech.test.service.KafkaProd
         } catch (KafkaException e) {
             throw e;
         } catch (Exception e) {
-            throw new KafkaException("Failed to send order deleted event to Kafka topic 'order-deleted-topic': " + e.getMessage(), e);
+            throw new KafkaException(
+                    "Failed to send order deleted event to Kafka topic 'order-deleted-topic': "
+                            + e.getMessage(),
+                    e);
         }
     }
 }

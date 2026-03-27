@@ -14,16 +14,16 @@ import lombok.NoArgsConstructor;
 public class StudentTestRecordDTO {
 
     private Long id;
-    
+
     @NotBlank(message = "Roll number cannot be blank")
     private String rollNumber;
-    
+
     @NotNull(message = "Branch cannot be null")
     private Branch branch;
-    
+
     @Min(value = 0, message = "Marks cannot be negative")
     private int marks;
-    
+
     @NotNull(message = "Student ID cannot be null")
     private Long studentId;
 }

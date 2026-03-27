@@ -8,21 +8,18 @@ import com.tech.test.exception.InvalidDataException;
 import com.tech.test.mapper.AddressMapper;
 import com.tech.test.repository.AddressRepository;
 import com.tech.test.service.AddressService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 @Service
 public class AddressServiceImpl implements AddressService {
 
-    @Autowired
-    private AddressRepository addressRepository;
+    @Autowired private AddressRepository addressRepository;
 
-    @Autowired
-    private AddressMapper addressMapper;
+    @Autowired private AddressMapper addressMapper;
 
     @Override
     public AddressDTO createAddress(AddressDTO addressDTO) {
@@ -57,12 +54,12 @@ public class AddressServiceImpl implements AddressService {
             if (id == null || id <= 0) {
                 throw new InvalidDataException("Address ID must be a positive number");
             }
-            return addressRepository.findById(id)
-                    .map(addressMapper::toDTO);
+            return addressRepository.findById(id).map(addressMapper::toDTO);
         } catch (InvalidDataException e) {
             throw e;
         } catch (Exception e) {
-            throw new AddressException("Failed to retrieve address with ID " + id + ": " + e.getMessage(), e);
+            throw new AddressException(
+                    "Failed to retrieve address with ID " + id + ": " + e.getMessage(), e);
         }
     }
 
@@ -87,7 +84,8 @@ public class AddressServiceImpl implements AddressService {
         } catch (AddressException | InvalidDataException e) {
             throw e;
         } catch (Exception e) {
-            throw new AddressException("Failed to update address with ID " + id + ": " + e.getMessage(), e);
+            throw new AddressException(
+                    "Failed to update address with ID " + id + ": " + e.getMessage(), e);
         }
     }
 
@@ -104,7 +102,8 @@ public class AddressServiceImpl implements AddressService {
         } catch (AddressException | InvalidDataException e) {
             throw e;
         } catch (Exception e) {
-            throw new AddressException("Failed to delete address with ID " + id + ": " + e.getMessage(), e);
+            throw new AddressException(
+                    "Failed to delete address with ID " + id + ": " + e.getMessage(), e);
         }
     }
 
@@ -120,22 +119,18 @@ public class AddressServiceImpl implements AddressService {
         } catch (InvalidDataException e) {
             throw e;
         } catch (Exception e) {
-            throw new AddressException("Failed to retrieve addresses by type " + addressType + ": " + e.getMessage(), e);
+            throw new AddressException(
+                    "Failed to retrieve addresses by type " + addressType + ": " + e.getMessage(),
+                    e);
         }
     }
 
     @Override
     public List<AddressDTO> getByStudent(Long studentId) {
 
-        List<Address> addresses =
-                addressRepository.findAllByStudentId(studentId);
+        List<Address> addresses = addressRepository.findAllByStudentId(studentId);
 
-
-
-
-        return addresses.stream()
-                .map(this::mapToDTO)
-                .collect(Collectors.toList());
+        return addresses.stream().map(this::mapToDTO).collect(Collectors.toList());
     }
 
     private AddressDTO mapToDTO(Address address) {

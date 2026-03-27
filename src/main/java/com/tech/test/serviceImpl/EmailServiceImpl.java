@@ -31,19 +31,24 @@ public class EmailServiceImpl implements com.tech.test.service.EmailService {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setTo("customer@example.com");
             message.setSubject("Order Confirmation");
-            message.setText("Your order for " + orderDTO.getProductName() + " has been received. Quantity: " + orderDTO.getQuantity());
-            
+            message.setText(
+                    "Your order for "
+                            + orderDTO.getProductName()
+                            + " has been received. Quantity: "
+                            + orderDTO.getQuantity());
+
             if (mailSender == null) {
                 throw new BusinessLogicException("Mail sender is not properly configured");
             }
-            
+
             mailSender.send(message);
         } catch (InvalidDataException e) {
             throw e;
         } catch (BusinessLogicException e) {
             throw e;
         } catch (Exception e) {
-            throw new BusinessLogicException("Failed to send order confirmation email: " + e.getMessage(), e);
+            throw new BusinessLogicException(
+                    "Failed to send order confirmation email: " + e.getMessage(), e);
         }
     }
 }

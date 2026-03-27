@@ -4,11 +4,10 @@ import com.tech.test.dto.ProductDTO;
 import com.tech.test.entity.Product;
 import com.tech.test.repository.ProductRepository;
 import com.tech.test.service.ProductService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -36,16 +35,12 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<ProductDTO> getAll() {
-        return repo.findAll()
-                .stream()
-                .map(this::mapToDTO)
-                .collect(Collectors.toList());
+        return repo.findAll().stream().map(this::mapToDTO).collect(Collectors.toList());
     }
 
     @Override
     public ProductDTO getById(Long id) {
-        Product p = repo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+        Product p = repo.findById(id).orElseThrow(() -> new RuntimeException("Product not found"));
 
         return mapToDTO(p);
     }
@@ -53,17 +48,13 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<ProductDTO> getByBranch(String branch) {
 
-        return repo.findByBranch(branch)
-                .stream()
-                .map(this::mapToDTO)
-                .collect(Collectors.toList());
+        return repo.findByBranch(branch).stream().map(this::mapToDTO).collect(Collectors.toList());
     }
 
     @Override
     public ProductDTO update(Long id, ProductDTO dto) {
 
-        Product p = repo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+        Product p = repo.findById(id).orElseThrow(() -> new RuntimeException("Product not found"));
 
         p.setProductName(dto.getProductName());
         p.setDescription(dto.getDescription());

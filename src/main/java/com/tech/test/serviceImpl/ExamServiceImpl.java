@@ -20,12 +20,11 @@ import com.tech.test.repository.StudentAnswerRepository;
 import com.tech.test.repository.StudentTestRecordRepository;
 import com.tech.test.service.ExamService;
 import com.tech.test.service.KafkaProducerService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -67,7 +66,8 @@ public class ExamServiceImpl implements ExamService {
         } catch (InvalidDataException | QuestionException e) {
             throw e;
         } catch (Exception e) {
-            throw new QuestionException("Failed to delete question with ID " + id + ": " + e.getMessage(), e);
+            throw new QuestionException(
+                    "Failed to delete question with ID " + id + ": " + e.getMessage(), e);
         }
     }
 
@@ -120,7 +120,8 @@ public class ExamServiceImpl implements ExamService {
 
                 Optional<Question> questionOpt = questionRepo.findById(ans.getQuestionId());
                 if (questionOpt.isEmpty()) {
-                    throw new TestSubmissionException("Question not found with ID: " + ans.getQuestionId());
+                    throw new TestSubmissionException(
+                            "Question not found with ID: " + ans.getQuestionId());
                 }
 
                 Question q = questionOpt.get();
@@ -161,7 +162,8 @@ public class ExamServiceImpl implements ExamService {
         } catch (InvalidDataException e) {
             throw e;
         } catch (Exception e) {
-            throw new StudentRecordException("Failed to save student test record: " + e.getMessage(), e);
+            throw new StudentRecordException(
+                    "Failed to save student test record: " + e.getMessage(), e);
         }
     }
 
@@ -186,7 +188,9 @@ public class ExamServiceImpl implements ExamService {
         } catch (StudentRecordException | InvalidDataException e) {
             throw e;
         } catch (Exception e) {
-            throw new StudentRecordException("Failed to update student test record with ID " + id + ": " + e.getMessage(), e);
+            throw new StudentRecordException(
+                    "Failed to update student test record with ID " + id + ": " + e.getMessage(),
+                    e);
         }
     }
 
@@ -203,7 +207,9 @@ public class ExamServiceImpl implements ExamService {
         } catch (StudentRecordException | InvalidDataException e) {
             throw e;
         } catch (Exception e) {
-            throw new StudentRecordException("Failed to delete student test record with ID " + id + ": " + e.getMessage(), e);
+            throw new StudentRecordException(
+                    "Failed to delete student test record with ID " + id + ": " + e.getMessage(),
+                    e);
         }
     }
 
@@ -217,7 +223,8 @@ public class ExamServiceImpl implements ExamService {
         } catch (InvalidDataException e) {
             throw e;
         } catch (Exception e) {
-            throw new StudentRecordException("Failed to retrieve records by branch " + branch + ": " + e.getMessage(), e);
+            throw new StudentRecordException(
+                    "Failed to retrieve records by branch " + branch + ": " + e.getMessage(), e);
         }
     }
 
@@ -226,47 +233,40 @@ public class ExamServiceImpl implements ExamService {
 
         Branch b = Branch.valueOf(branch.toUpperCase());
 
-        List<Question> questions =
-                questionRepo.findByBranch(b);
+        List<Question> questions = questionRepo.findByBranch(b);
 
         return questions.stream()
-                .map(q -> {
+                .map(
+                        q -> {
+                            QuestionDTO dto = new QuestionDTO();
 
-                    QuestionDTO dto = new QuestionDTO();
+                            dto.setId(q.getId());
+                            dto.setQuestion(q.getQuestion());
+                            dto.setOptionA(q.getOptionA());
+                            dto.setOptionB(q.getOptionB());
+                            dto.setOptionC(q.getOptionC());
+                            dto.setOptionD(q.getOptionD());
+                            dto.setBranch(q.getBranch().name());
 
-                    dto.setId(q.getId());
-                    dto.setQuestion(q.getQuestion());
-                    dto.setOptionA(q.getOptionA());
-                    dto.setOptionB(q.getOptionB());
-                    dto.setOptionC(q.getOptionC());
-                    dto.setOptionD(q.getOptionD());
-                    dto.setBranch(q.getBranch().name());
-
-                    return dto;
-                })
+                            return dto;
+                        })
                 .collect(Collectors.toList());
     }
 
     @Override
     public TestResultResponse getResult(Long studentId) {
 
-        List<StudentTestRecord> records =
-                studentTestRecordRepository.findByStudentId(studentId);
+        List<StudentTestRecord> records = studentTestRecordRepository.findByStudentId(studentId);
 
         TestResultResponse res = new TestResultResponse();
 
         res.setTotalTests(records.size());
 
-        int totalMarks = records.stream()
-                .mapToInt(StudentTestRecord::getMarks)
-                .sum();
+        int totalMarks = records.stream().mapToInt(StudentTestRecord::getMarks).sum();
 
         res.setTotalMarks(totalMarks);
 
-        double avg = records.stream()
-                .mapToInt(StudentTestRecord::getMarks)
-                .average()
-                .orElse(0);
+        double avg = records.stream().mapToInt(StudentTestRecord::getMarks).average().orElse(0);
 
         res.setAverageMarks(avg);
 

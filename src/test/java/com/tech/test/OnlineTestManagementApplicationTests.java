@@ -8,11 +8,8 @@ import org.springframework.mail.javamail.JavaMailSender;
 @SpringBootTest
 class OnlineTestManagementApplicationTests {
 
-	@MockBean
-	private JavaMailSender javaMailSender;
+    @MockBean private JavaMailSender javaMailSender;
 
-	@Test
-	void contextLoads() {
-	}
-
+    @Test
+    void contextLoads() {}
 }

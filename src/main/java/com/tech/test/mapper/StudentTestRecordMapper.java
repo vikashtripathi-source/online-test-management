@@ -14,7 +14,9 @@ public interface StudentTestRecordMapper {
 
     StudentTestRecord toEntity(StudentTestRecordDTO studentTestRecordDTO);
 
-    java.util.List<StudentTestRecordDTO> toDTOList(java.util.List<StudentTestRecord> studentTestRecords);
-    java.util.List<StudentTestRecord> toEntityList(java.util.List<StudentTestRecordDTO> studentTestRecordDTOs);
-}
+    java.util.List<StudentTestRecordDTO> toDTOList(
+            java.util.List<StudentTestRecord> studentTestRecords);
 
+    java.util.List<StudentTestRecord> toEntityList(
+            java.util.List<StudentTestRecordDTO> studentTestRecordDTOs);
+}

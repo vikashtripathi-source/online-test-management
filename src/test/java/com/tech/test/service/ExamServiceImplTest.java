@@ -1,8 +1,11 @@
 package com.tech.test.service;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 import com.tech.test.dto.AnswerRequest;
 import com.tech.test.dto.QuestionDTO;
-import com.tech.test.dto.StudentAnswerDTO;
 import com.tech.test.dto.StudentTestRecordDTO;
 import com.tech.test.dto.SubmitTestRequest;
 import com.tech.test.dto.TestResultResponse;
@@ -17,44 +20,31 @@ import com.tech.test.repository.QuestionRepository;
 import com.tech.test.repository.StudentAnswerRepository;
 import com.tech.test.repository.StudentTestRecordRepository;
 import com.tech.test.serviceImpl.ExamServiceImpl;
+import java.util.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.*;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
 @ExtendWith(MockitoExtension.class)
 public class ExamServiceImplTest {
 
-    @Mock
-    private QuestionRepository questionRepo;
+    @Mock private QuestionRepository questionRepo;
 
-    @Mock
-    private StudentAnswerRepository answerRepo;
+    @Mock private StudentAnswerRepository answerRepo;
 
-    @Mock
-    private StudentTestRecordRepository studentTestRecordRepo;
+    @Mock private StudentTestRecordRepository studentTestRecordRepo;
 
-    @Mock
-    private QuestionMapper questionMapper;
+    @Mock private QuestionMapper questionMapper;
 
-    @Mock
-    private StudentAnswerMapper studentAnswerMapper;
+    @Mock private StudentAnswerMapper studentAnswerMapper;
 
-    @Mock
-    private StudentTestRecordMapper studentTestRecordMapper;
+    @Mock private StudentTestRecordMapper studentTestRecordMapper;
 
-    @Mock
-    private KafkaProducerService kafkaProducerService;
+    @Mock private KafkaProducerService kafkaProducerService;
 
-    @InjectMocks
-    private ExamServiceImpl examService;
+    @InjectMocks private ExamServiceImpl examService;
 
     @Test
     void testAddQuestion() {
@@ -67,8 +57,8 @@ public class ExamServiceImplTest {
         questionDTO.setOptionC("5");
         questionDTO.setOptionD("6");
 
-        Question question = new Question(1L,"What is 2+2?","3","4","5","6","B");
-        Question savedQuestion = new Question(1L,"What is 2+2?","3","4","5","6","B");
+        Question question = new Question(1L, "What is 2+2?", "3", "4", "5", "6", "B");
+        Question savedQuestion = new Question(1L, "What is 2+2?", "3", "4", "5", "6", "B");
 
         when(questionMapper.toEntity(questionDTO)).thenReturn(question);
         when(questionRepo.save(question)).thenReturn(savedQuestion);
@@ -76,7 +66,7 @@ public class ExamServiceImplTest {
 
         QuestionDTO result = examService.addQuestion(questionDTO);
 
-        assertEquals(questionDTO,result);
+        assertEquals(questionDTO, result);
         verify(questionMapper, times(1)).toEntity(questionDTO);
         verify(questionRepo, times(1)).save(question);
         verify(questionMapper, times(1)).toDTO(savedQuestion);
@@ -102,9 +92,9 @@ public class ExamServiceImplTest {
 
         List<QuestionDTO> questionDTOs = Arrays.asList(q1DTO, q2DTO);
 
-        Question q1 = new Question(1L,"Q1","A","B","C","D","A");
-        Question q2 = new Question(2L,"Q2","A","B","C","D","B");
-        List<Question> questions = Arrays.asList(q1,q2);
+        Question q1 = new Question(1L, "Q1", "A", "B", "C", "D", "A");
+        Question q2 = new Question(2L, "Q2", "A", "B", "C", "D", "B");
+        List<Question> questions = Arrays.asList(q1, q2);
 
         when(questionMapper.toEntityList(questionDTOs)).thenReturn(questions);
         when(questionRepo.saveAll(questions)).thenReturn(questions);
@@ -112,7 +102,7 @@ public class ExamServiceImplTest {
 
         List<QuestionDTO> result = examService.addAllQuestions(questionDTOs);
 
-        assertEquals(2,result.size());
+        assertEquals(2, result.size());
         verify(questionMapper, times(1)).toEntityList(questionDTOs);
         verify(questionRepo, times(1)).saveAll(questions);
         verify(questionMapper, times(1)).toDTOList(questions);
@@ -121,7 +111,7 @@ public class ExamServiceImplTest {
     @Test
     void testGetAllQuestions() {
 
-        Question q1 = new Question(1L,"Q1","A","B","C","D","A");
+        Question q1 = new Question(1L, "Q1", "A", "B", "C", "D", "A");
         QuestionDTO q1DTO = new QuestionDTO();
         q1DTO.setId(1L);
         q1DTO.setQuestion("Q1");
@@ -135,8 +125,8 @@ public class ExamServiceImplTest {
 
         List<QuestionDTO> result = examService.getAllQuestions();
 
-        assertEquals(1,result.size());
-        assertEquals("Q1",result.get(0).getQuestion());
+        assertEquals(1, result.size());
+        assertEquals("Q1", result.get(0).getQuestion());
         verify(questionRepo, times(1)).findAll();
         verify(questionMapper, times(1)).toDTOList(List.of(q1));
     }
@@ -144,7 +134,7 @@ public class ExamServiceImplTest {
     @Test
     void testSubmitTest() {
 
-        Question q = new Question(1L,"Q1","A","B","C","D","A");
+        Question q = new Question(1L, "Q1", "A", "B", "C", "D", "A");
 
         AnswerRequest ans = new AnswerRequest();
         ans.setQuestionId(1L);
@@ -159,7 +149,7 @@ public class ExamServiceImplTest {
 
         TestResultResponse result = examService.submitTest(request);
 
-        assertEquals(1,result.getScore());
+        assertEquals(1, result.getScore());
         verify(answerRepo, times(1)).save(any(StudentAnswer.class));
         verify(kafkaProducerService, times(1)).sendTestSubmission(request);
     }
@@ -174,8 +164,8 @@ public class ExamServiceImplTest {
         recordDTO.setMarks(85);
         recordDTO.setStudentId(1L);
 
-        StudentTestRecord record = new StudentTestRecord(1L,"12345", Branch.CSE,85,1L);
-        StudentTestRecord savedRecord = new StudentTestRecord(1L,"12345", Branch.CSE,85,1L);
+        StudentTestRecord record = new StudentTestRecord(1L, "12345", Branch.CSE, 85, 1L);
+        StudentTestRecord savedRecord = new StudentTestRecord(1L, "12345", Branch.CSE, 85, 1L);
 
         when(studentTestRecordMapper.toEntity(recordDTO)).thenReturn(record);
         when(studentTestRecordRepo.save(record)).thenReturn(savedRecord);
@@ -183,7 +173,7 @@ public class ExamServiceImplTest {
 
         StudentTestRecordDTO result = examService.saveStudentTestRecord(recordDTO);
 
-        assertEquals(recordDTO,result);
+        assertEquals(recordDTO, result);
         verify(studentTestRecordMapper, times(1)).toEntity(recordDTO);
         verify(studentTestRecordRepo, times(1)).save(record);
         verify(studentTestRecordMapper, times(1)).toDTO(savedRecord);
@@ -192,7 +182,7 @@ public class ExamServiceImplTest {
     @Test
     void testGetRecordsByBranch() {
 
-        StudentTestRecord record = new StudentTestRecord(1L,"12345",Branch.CSE,85,1L);
+        StudentTestRecord record = new StudentTestRecord(1L, "12345", Branch.CSE, 85, 1L);
         StudentTestRecordDTO recordDTO = new StudentTestRecordDTO();
         recordDTO.setId(1L);
         recordDTO.setRollNumber("12345");
@@ -205,7 +195,7 @@ public class ExamServiceImplTest {
 
         List<StudentTestRecordDTO> result = examService.getRecordsByBranch(Branch.CSE);
 
-        assertEquals(1,result.size());
+        assertEquals(1, result.size());
         verify(studentTestRecordRepo, times(1)).findByBranch(Branch.CSE);
         verify(studentTestRecordMapper, times(1)).toDTOList(List.of(record));
     }
@@ -229,8 +219,8 @@ public class ExamServiceImplTest {
         recordDTO.setMarks(80);
         recordDTO.setStudentId(1L);
 
-        StudentTestRecord existing = new StudentTestRecord(1L,"12345",Branch.CSE,80,1L);
-        StudentTestRecord updatedRecord = new StudentTestRecord(1L,"54321",Branch.IT,90,2L);
+        StudentTestRecord existing = new StudentTestRecord(1L, "12345", Branch.CSE, 80, 1L);
+        StudentTestRecord updatedRecord = new StudentTestRecord(1L, "54321", Branch.IT, 90, 2L);
         StudentTestRecordDTO updatedRecordDTO = new StudentTestRecordDTO();
         updatedRecordDTO.setId(1L);
         updatedRecordDTO.setRollNumber("54321");
@@ -245,7 +235,7 @@ public class ExamServiceImplTest {
 
         StudentTestRecordDTO result = examService.updateStudentTestRecord(1L, recordDTO);
 
-        assertEquals(Branch.IT,result.getBranch());
+        assertEquals(Branch.IT, result.getBranch());
         verify(studentTestRecordRepo, times(1)).findById(1L);
         verify(studentTestRecordMapper, times(1)).toEntity(recordDTO);
         verify(studentTestRecordRepo, times(1)).save(any(StudentTestRecord.class));

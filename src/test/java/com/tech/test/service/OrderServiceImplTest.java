@@ -1,38 +1,33 @@
 package com.tech.test.service;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 import com.tech.test.dto.OrderDTO;
 import com.tech.test.entity.Order;
 import com.tech.test.mapper.OrderMapper;
 import com.tech.test.repository.OrderRepository;
 import com.tech.test.serviceImpl.OrderServiceImpl;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
 @ExtendWith(MockitoExtension.class)
 public class OrderServiceImplTest {
 
-    @Mock
-    private OrderRepository orderRepository;
+    @Mock private OrderRepository orderRepository;
 
-    @Mock
-    private OrderMapper orderMapper;
+    @Mock private OrderMapper orderMapper;
 
-    @Mock
-    private KafkaProducerService kafkaProducerService;
+    @Mock private KafkaProducerService kafkaProducerService;
 
-    @InjectMocks
-    private OrderServiceImpl orderServiceImpl;
+    @InjectMocks private OrderServiceImpl orderServiceImpl;
 
     @Test
     public void testCreateOrder() {
@@ -95,9 +90,11 @@ public class OrderServiceImplTest {
     @Test
     public void testUpdateOrder() {
         Order existingOrder = new Order(1L, "Product A", 5, "123 Main St", "City", "12345");
-        OrderDTO updatedDetails = new OrderDTO(null, "Updated Product", 10, "789 Oak St", "Village", "11111");
+        OrderDTO updatedDetails =
+                new OrderDTO(null, "Updated Product", 10, "789 Oak St", "Village", "11111");
         Order updatedOrder = new Order(1L, "Updated Product", 10, "789 Oak St", "Village", "11111");
-        OrderDTO updatedOrderDTO = new OrderDTO(1L, "Updated Product", 10, "789 Oak St", "Village", "11111");
+        OrderDTO updatedOrderDTO =
+                new OrderDTO(1L, "Updated Product", 10, "789 Oak St", "Village", "11111");
 
         when(orderRepository.findById(1L)).thenReturn(Optional.of(existingOrder));
         when(orderMapper.toEntity(updatedDetails)).thenReturn(updatedOrder);
@@ -117,11 +114,13 @@ public class OrderServiceImplTest {
 
     @Test
     public void testUpdateOrderNotFound() {
-        OrderDTO updatedDetails = new OrderDTO(null, "Updated Product", 10, "789 Oak St", "Village", "11111");
+        OrderDTO updatedDetails =
+                new OrderDTO(null, "Updated Product", 10, "789 Oak St", "Village", "11111");
 
         when(orderRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(RuntimeException.class, () -> orderServiceImpl.updateOrder(1L, updatedDetails));
+        assertThrows(
+                RuntimeException.class, () -> orderServiceImpl.updateOrder(1L, updatedDetails));
         verify(orderRepository, times(1)).findById(1L);
         verify(orderRepository, never()).save(any(Order.class));
     }

@@ -1,11 +1,10 @@
 package com.tech.test.dto;
 
 import com.tech.test.enums.Branch;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor

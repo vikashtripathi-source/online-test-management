@@ -6,10 +6,9 @@ import com.tech.test.entity.StudentTestRecord;
 import com.tech.test.repository.OrderRepository;
 import com.tech.test.repository.StudentTestRecordRepository;
 import com.tech.test.service.DashboardService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -26,15 +25,11 @@ public class DashboardServiceImpl implements DashboardService {
         List<Order> orders = orderRepository.findByStudentId(studentId);
         dto.setTotalOrders(orders.size());
 
-        List<StudentTestRecord> records =
-                recordRepository.findByStudentId(studentId);
+        List<StudentTestRecord> records = recordRepository.findByStudentId(studentId);
 
         dto.setTotalTests(records.size());
 
-        double avg = records.stream()
-                .mapToInt(StudentTestRecord::getMarks)
-                .average()
-                .orElse(0);
+        double avg = records.stream().mapToInt(StudentTestRecord::getMarks).average().orElse(0);
 
         dto.setAverageMarks(avg);
 

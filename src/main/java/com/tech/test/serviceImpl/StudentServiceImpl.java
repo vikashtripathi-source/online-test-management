@@ -10,12 +10,11 @@ import com.tech.test.exception.StudentNotFoundException;
 import com.tech.test.repository.StudentRepository;
 import com.tech.test.service.StudentService;
 import com.tech.test.util.JwtUtil;
+import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +28,10 @@ public class StudentServiceImpl implements StudentService {
     public StudentDTO register(StudentDTO dto) {
         // Check if email already exists
         if (repository.findFirstByEmail(dto.getEmail()).isPresent()) {
-            throw new EmailAlreadyExistsException("Email '" + dto.getEmail() + "' is already registered. Please use a different email or try logging in.");
+            throw new EmailAlreadyExistsException(
+                    "Email '"
+                            + dto.getEmail()
+                            + "' is already registered. Please use a different email or try logging in.");
         }
 
         Student student = new Student();
@@ -50,11 +52,19 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public JwtResponse login(LoginRequest request) {
-        Student student = repository.findFirstByEmail(request.getEmail())
-                .orElseThrow(() -> new StudentNotFoundException("No account found with email '" + request.getEmail() + "'. Please check your email or register for a new account."));
+        Student student =
+                repository
+                        .findFirstByEmail(request.getEmail())
+                        .orElseThrow(
+                                () ->
+                                        new StudentNotFoundException(
+                                                "No account found with email '"
+                                                        + request.getEmail()
+                                                        + "'. Please check your email or register for a new account."));
 
         if (!passwordEncoder.matches(request.getPassword(), student.getPassword())) {
-            throw new InvalidPasswordException("Incorrect password. Please verify your password and try again.");
+            throw new InvalidPasswordException(
+                    "Incorrect password. Please verify your password and try again.");
         }
 
         String token = jwtUtil.generateToken(student.getEmail(), student.getId());
@@ -71,8 +81,13 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public StudentDTO getById(Long id) {
-        Student student = repository.findById(id)
-                .orElseThrow(() -> new StudentNotFoundException("Student with ID " + id + " not found."));
+        Student student =
+                repository
+                        .findById(id)
+                        .orElseThrow(
+                                () ->
+                                        new StudentNotFoundException(
+                                                "Student with ID " + id + " not found."));
 
         StudentDTO dto = new StudentDTO();
 
@@ -87,14 +102,21 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public String uploadImage(Long studentId, MultipartFile image) {
-        Student student = repository.findById(studentId)
-                .orElseThrow(() -> new StudentNotFoundException("Student with ID " + studentId + " not found."));
+        Student student =
+                repository
+                        .findById(studentId)
+                        .orElseThrow(
+                                () ->
+                                        new StudentNotFoundException(
+                                                "Student with ID " + studentId + " not found."));
 
         // Validate maximum file size (2MB = 2 * 1024 * 1024 bytes)
         long maxSize = 2 * 1024 * 1024;
         if (image.getSize() > maxSize) {
-            throw new RuntimeException("Image size must be less than or equal to 2MB. Current size: " + 
-                    (image.getSize() / 1024 / 1024) + "MB");
+            throw new RuntimeException(
+                    "Image size must be less than or equal to 2MB. Current size: "
+                            + (image.getSize() / 1024 / 1024)
+                            + "MB");
         }
 
         try {
@@ -108,8 +130,13 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public byte[] getImage(Long studentId) {
-        Student student = repository.findById(studentId)
-                .orElseThrow(() -> new StudentNotFoundException("Student with ID " + studentId + " not found."));
+        Student student =
+                repository
+                        .findById(studentId)
+                        .orElseThrow(
+                                () ->
+                                        new StudentNotFoundException(
+                                                "Student with ID " + studentId + " not found."));
 
         if (student.getImage() == null) {
             throw new RuntimeException("No image found for student ID: " + studentId);

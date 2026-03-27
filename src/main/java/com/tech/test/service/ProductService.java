@@ -1,7 +1,6 @@
 package com.tech.test.service;
 
 import com.tech.test.dto.ProductDTO;
-
 import java.util.List;
 
 public interface ProductService {

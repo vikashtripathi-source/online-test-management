@@ -1,9 +1,19 @@
 package com.tech.test.controller;
 
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tech.test.dto.AddressDTO;
 import com.tech.test.enums.AddressType;
 import com.tech.test.service.AddressService;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,29 +23,15 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.verify;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
 @SpringBootTest
 @AutoConfigureMockMvc
 public class AddressControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+    @Autowired private MockMvc mockMvc;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    @Autowired private ObjectMapper objectMapper;
 
-    @MockBean
-    private AddressService addressService;
+    @MockBean private AddressService addressService;
 
     private AddressDTO homeAddress;
     private AddressDTO collegeAddress;
@@ -70,9 +66,10 @@ public class AddressControllerTest {
     public void testCreateAddress() throws Exception {
         when(addressService.createAddress(any(AddressDTO.class))).thenReturn(homeAddress);
 
-        mockMvc.perform(post("/api/addresses")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(homeAddress)))
+        mockMvc.perform(
+                        post("/api/addresses")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(homeAddress)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.streetAddress").value("123 Home Street"))
@@ -84,8 +81,7 @@ public class AddressControllerTest {
         List<AddressDTO> addresses = Arrays.asList(homeAddress, collegeAddress);
         when(addressService.getAllAddresses()).thenReturn(addresses);
 
-        mockMvc.perform(get("/api/addresses")
-                .contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/api/addresses").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(1))
                 .andExpect(jsonPath("$[1].id").value(2))
@@ -97,8 +93,7 @@ public class AddressControllerTest {
     public void testGetAddressById() throws Exception {
         when(addressService.getAddressById(1L)).thenReturn(Optional.of(homeAddress));
 
-        mockMvc.perform(get("/api/addresses/1")
-                .contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/api/addresses/1").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.streetAddress").value("123 Home Street"));
@@ -108,8 +103,7 @@ public class AddressControllerTest {
     public void testGetAddressById_NotFound() throws Exception {
         when(addressService.getAddressById(999L)).thenReturn(Optional.empty());
 
-        mockMvc.perform(get("/api/addresses/999")
-                .contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/api/addresses/999").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
 
@@ -126,11 +120,13 @@ public class AddressControllerTest {
         updatedAddress.setPhoneNumber("111-222-3333");
         updatedAddress.setEmail("updated@example.com");
 
-        when(addressService.updateAddress(eq(1L), any(AddressDTO.class))).thenReturn(updatedAddress);
+        when(addressService.updateAddress(eq(1L), any(AddressDTO.class)))
+                .thenReturn(updatedAddress);
 
-        mockMvc.perform(put("/api/addresses/1")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(updatedAddress)))
+        mockMvc.perform(
+                        put("/api/addresses/1")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(updatedAddress)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.streetAddress").value("456 Updated Street"))
                 .andExpect(jsonPath("$.city").value("Los Angeles"));
@@ -140,8 +136,7 @@ public class AddressControllerTest {
     public void testDeleteAddress() throws Exception {
         doNothing().when(addressService).deleteAddress(1L);
 
-        mockMvc.perform(delete("/api/addresses/1")
-                .contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(delete("/api/addresses/1").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
 
         verify(addressService).deleteAddress(1L);
@@ -152,8 +147,7 @@ public class AddressControllerTest {
         List<AddressDTO> homeAddresses = Arrays.asList(homeAddress);
         when(addressService.getAddressesByType(AddressType.HOME)).thenReturn(homeAddresses);
 
-        mockMvc.perform(get("/api/addresses/type/HOME")
-                .contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/api/addresses/type/HOME").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(1))
                 .andExpect(jsonPath("$[0].addressType").value("HOME"));
@@ -164,8 +158,7 @@ public class AddressControllerTest {
         List<AddressDTO> collegeAddresses = Arrays.asList(collegeAddress);
         when(addressService.getAddressesByType(AddressType.COLLEGE)).thenReturn(collegeAddresses);
 
-        mockMvc.perform(get("/api/addresses/type/COLLEGE")
-                .contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/api/addresses/type/COLLEGE").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(2))
                 .andExpect(jsonPath("$[0].addressType").value("COLLEGE"));

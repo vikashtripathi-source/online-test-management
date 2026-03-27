@@ -13,10 +13,10 @@ import lombok.NoArgsConstructor;
 public class InventoryDTO {
 
     private Long id;
-    
+
     @NotBlank(message = "Product name cannot be blank")
     private String productName;
-    
+
     @NotNull(message = "Stock quantity cannot be null")
     @Min(value = 0, message = "Stock quantity cannot be negative")
     private int stockQuantity;

@@ -1,5 +1,9 @@
 package com.tech.test.service;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tech.test.dto.AnswerRequest;
 import com.tech.test.dto.OrderDTO;
@@ -11,39 +15,28 @@ import com.tech.test.mapper.OrderMapper;
 import com.tech.test.repository.QuestionRepository;
 import com.tech.test.repository.StudentAnswerRepository;
 import com.tech.test.serviceImpl.KafkaConsumerServiceImpl;
+import java.util.Arrays;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Arrays;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
 @ExtendWith(MockitoExtension.class)
 public class KafkaConsumerServiceImplTest {
 
-    @Mock
-    private QuestionRepository questionRepo;
+    @Mock private QuestionRepository questionRepo;
 
-    @Mock
-    private StudentAnswerRepository answerRepo;
+    @Mock private StudentAnswerRepository answerRepo;
 
-    @Mock
-    private EmailService emailService;
+    @Mock private EmailService emailService;
 
-    @Mock
-    private InventoryService inventoryService;
+    @Mock private InventoryService inventoryService;
 
-    @Mock
-    private OrderMapper orderMapper;
+    @Mock private OrderMapper orderMapper;
 
-    @InjectMocks
-    private KafkaConsumerServiceImpl kafkaConsumerServiceImpl;
+    @InjectMocks private KafkaConsumerServiceImpl kafkaConsumerServiceImpl;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -81,7 +74,9 @@ public class KafkaConsumerServiceImplTest {
     public void testConsumeSubmitTestTopic_InvalidJson() {
         String invalidMessage = "{invalid json}";
 
-        assertThrows(KafkaProcessingException.class, () -> kafkaConsumerServiceImpl.consume(invalidMessage));
+        assertThrows(
+                KafkaProcessingException.class,
+                () -> kafkaConsumerServiceImpl.consume(invalidMessage));
     }
 
     @Test
@@ -116,6 +111,7 @@ public class KafkaConsumerServiceImplTest {
         assertDoesNotThrow(() -> kafkaConsumerServiceImpl.consume(message));
 
         verify(questionRepo, times(1)).findById(1L);
-        verify(answerRepo, never()).save(any(StudentAnswer.class)); // No save because question not found
+        verify(answerRepo, never())
+                .save(any(StudentAnswer.class)); // No save because question not found
     }
 }

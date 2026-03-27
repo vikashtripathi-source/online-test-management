@@ -6,9 +6,9 @@ import static org.mockito.Mockito.*;
 
 import com.tech.test.dto.AddressDTO;
 import com.tech.test.entity.Address;
+import com.tech.test.mapper.AddressMapper;
 import com.tech.test.repository.AddressRepository;
 import com.tech.test.serviceImpl.AddressServiceImpl;
-import com.tech.test.mapper.AddressMapper;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -47,7 +47,7 @@ class AddressServiceTest {
         Address savedAddress = new Address();
         savedAddress.setId(1L);
         savedAddress.setStreetAddress(addressDTO.getStreetAddress());
-        
+
         AddressDTO resultDTO = new AddressDTO();
         resultDTO.setId(1L);
         resultDTO.setStreetAddress(addressDTO.getStreetAddress());
@@ -68,10 +68,10 @@ class AddressServiceTest {
         Address address = new Address();
         address.setId(1L);
         address.setStreetAddress("123 Main St");
-        
+
         AddressDTO addressDTO = sampleAddressDTO();
         addressDTO.setId(1L);
-        
+
         List<Address> addresses = Arrays.asList(address);
 
         when(addressRepository.findAll()).thenReturn(addresses);
@@ -89,7 +89,7 @@ class AddressServiceTest {
         Address address = new Address();
         address.setId(1L);
         address.setStreetAddress("123 Main St");
-        
+
         AddressDTO addressDTO = sampleAddressDTO();
         addressDTO.setId(1L);
 
@@ -119,7 +119,7 @@ class AddressServiceTest {
         Address updatedAddress = new Address();
         updatedAddress.setId(1L);
         updatedAddress.setStreetAddress("456 Oak Ave");
-        
+
         AddressDTO resultDTO = new AddressDTO();
         resultDTO.setId(1L);
         resultDTO.setStreetAddress("456 Oak Ave");
@@ -140,7 +140,8 @@ class AddressServiceTest {
 
         when(addressRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(com.tech.test.exception.AddressException.class, 
+        assertThrows(
+                com.tech.test.exception.AddressException.class,
                 () -> addressService.updateAddress(1L, addressDTO));
     }
 
@@ -158,7 +159,8 @@ class AddressServiceTest {
     void testDeleteAddress_NotFound() {
         when(addressRepository.existsById(1L)).thenReturn(false);
 
-        assertThrows(com.tech.test.exception.AddressException.class, 
+        assertThrows(
+                com.tech.test.exception.AddressException.class,
                 () -> addressService.deleteAddress(1L));
     }
 }

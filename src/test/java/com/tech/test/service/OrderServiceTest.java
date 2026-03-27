@@ -6,10 +6,9 @@ import static org.mockito.Mockito.*;
 
 import com.tech.test.dto.OrderDTO;
 import com.tech.test.entity.Order;
+import com.tech.test.mapper.OrderMapper;
 import com.tech.test.repository.OrderRepository;
 import com.tech.test.serviceImpl.OrderServiceImpl;
-import com.tech.test.mapper.OrderMapper;
-import com.tech.test.service.KafkaProducerService;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -47,7 +46,7 @@ class OrderServiceTest {
         savedOrder.setId(1L);
         savedOrder.setProductName(orderDTO.getProductName());
         savedOrder.setQuantity(orderDTO.getQuantity());
-        
+
         OrderDTO resultDTO = new OrderDTO();
         resultDTO.setId(1L);
         resultDTO.setProductName(orderDTO.getProductName());
@@ -71,10 +70,10 @@ class OrderServiceTest {
         Order order = new Order();
         order.setId(1L);
         order.setProductName("Laptop");
-        
+
         OrderDTO orderDTO = sampleOrderDTO();
         orderDTO.setId(1L);
-        
+
         List<Order> orders = Arrays.asList(order);
 
         when(orderRepository.findAll()).thenReturn(orders);
@@ -92,7 +91,7 @@ class OrderServiceTest {
         Order order = new Order();
         order.setId(1L);
         order.setProductName("Laptop");
-        
+
         OrderDTO orderDTO = sampleOrderDTO();
         orderDTO.setId(1L);
 
@@ -123,7 +122,7 @@ class OrderServiceTest {
         updatedOrder.setId(1L);
         updatedOrder.setProductName("Updated Laptop");
         updatedOrder.setQuantity(3);
-        
+
         OrderDTO resultDTO = new OrderDTO();
         resultDTO.setId(1L);
         resultDTO.setProductName("Updated Laptop");
@@ -148,7 +147,8 @@ class OrderServiceTest {
 
         when(orderRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(com.tech.test.exception.OrderException.class, 
+        assertThrows(
+                com.tech.test.exception.OrderException.class,
                 () -> orderService.updateOrder(1L, orderDTO));
     }
 
@@ -167,7 +167,7 @@ class OrderServiceTest {
     void testDeleteOrder_NotFound() {
         when(orderRepository.existsById(1L)).thenReturn(false);
 
-        assertThrows(com.tech.test.exception.OrderException.class, 
-                () -> orderService.deleteOrder(1L));
+        assertThrows(
+                com.tech.test.exception.OrderException.class, () -> orderService.deleteOrder(1L));
     }
 }

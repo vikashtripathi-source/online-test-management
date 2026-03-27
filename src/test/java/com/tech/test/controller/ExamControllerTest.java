@@ -10,22 +10,27 @@ import com.tech.test.dto.StudentTestRecordDTO;
 import com.tech.test.enums.Branch;
 import com.tech.test.service.ExamService;
 import com.tech.test.service.KafkaProducerService;
+import com.tech.test.util.JwtUtil;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(ExamController.class)
+@Import(com.tech.test.config.SecurityConfig.class)
 class ExamControllerTest {
 
     @Autowired private MockMvc mockMvc;
 
     @MockBean private ExamService service;
-
     @MockBean private KafkaProducerService kafkaProducerService;
+    @MockBean private JwtUtil jwtUtil;
+    @MockBean private com.tech.test.security.CustomUserDetailsService customUserDetailsService;
 
     @Autowired private ObjectMapper objectMapper;
 
@@ -40,6 +45,7 @@ class ExamControllerTest {
     }
 
     @Test
+    @WithMockUser
     void testSaveStudentTestRecord() throws Exception {
 
         StudentTestRecordDTO saved = sample();
@@ -56,6 +62,7 @@ class ExamControllerTest {
     }
 
     @Test
+    @WithMockUser
     void testGetRecordsByBranch() throws Exception {
 
         List<StudentTestRecordDTO> records = List.of(sample());
@@ -68,6 +75,7 @@ class ExamControllerTest {
     }
 
     @Test
+    @WithMockUser
     void testUpdateStudentTestRecord() throws Exception {
 
         StudentTestRecordDTO updated = sample();
@@ -85,6 +93,7 @@ class ExamControllerTest {
     }
 
     @Test
+    @WithMockUser
     void testDeleteStudentTestRecord() throws Exception {
 
         doNothing().when(service).deleteStudentTestRecord(1L);

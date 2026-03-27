@@ -34,5 +34,5 @@ public class Address {
 
     private String email;
 
-    private Long studentId; // Added for report linking
+    private Long studentId;
 }

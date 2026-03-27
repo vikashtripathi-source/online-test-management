@@ -13,6 +13,9 @@ import com.tech.test.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor
@@ -80,5 +83,38 @@ public class StudentServiceImpl implements StudentService {
         dto.setBranch(student.getBranch());
 
         return dto;
+    }
+
+    @Override
+    public String uploadImage(Long studentId, MultipartFile image) {
+        Student student = repository.findById(studentId)
+                .orElseThrow(() -> new StudentNotFoundException("Student with ID " + studentId + " not found."));
+
+        // Validate maximum file size (2MB = 2 * 1024 * 1024 bytes)
+        long maxSize = 2 * 1024 * 1024;
+        if (image.getSize() > maxSize) {
+            throw new RuntimeException("Image size must be less than or equal to 2MB. Current size: " + 
+                    (image.getSize() / 1024 / 1024) + "MB");
+        }
+
+        try {
+            student.setImage(image.getBytes());
+            repository.save(student);
+            return "Image uploaded successfully for student ID: " + studentId;
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to upload image: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public byte[] getImage(Long studentId) {
+        Student student = repository.findById(studentId)
+                .orElseThrow(() -> new StudentNotFoundException("Student with ID " + studentId + " not found."));
+
+        if (student.getImage() == null) {
+            throw new RuntimeException("No image found for student ID: " + studentId);
+        }
+
+        return student.getImage();
     }
 }

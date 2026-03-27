@@ -14,7 +14,6 @@ public interface OrderMapper {
 
     Order toEntity(OrderDTO orderDTO);
 
-    // For collections
     java.util.List<OrderDTO> toDTOList(java.util.List<Order> orders);
     java.util.List<Order> toEntityList(java.util.List<OrderDTO> orderDTOs);
 }

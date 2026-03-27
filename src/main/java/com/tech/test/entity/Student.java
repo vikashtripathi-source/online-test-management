@@ -20,7 +20,11 @@ public class Student {
 
     private String password;
 
-    private Long studentId; // college id
+    private Long studentId;
 
     private String branch;
+
+    @Lob
+    @Column(name = "image", columnDefinition = "LONGBLOB")
+    private byte[] image;
 }

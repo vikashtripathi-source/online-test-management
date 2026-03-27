@@ -23,11 +23,9 @@ public class DashboardServiceImpl implements DashboardService {
 
         DashboardDTO dto = new DashboardDTO();
 
-        // ✅ Total Orders
         List<Order> orders = orderRepository.findByStudentId(studentId);
         dto.setTotalOrders(orders.size());
 
-        // ✅ Total Tests + Average Marks
         List<StudentTestRecord> records =
                 recordRepository.findByStudentId(studentId);
 
@@ -40,7 +38,6 @@ public class DashboardServiceImpl implements DashboardService {
 
         dto.setAverageMarks(avg);
 
-        // ✅ Branch (Take from first record if exists)
         if (!records.isEmpty()) {
             dto.setBranch(records.get(0).getBranch().name());
         } else {

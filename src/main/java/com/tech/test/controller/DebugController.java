@@ -24,16 +24,14 @@ public class DebugController {
     @GetMapping("/duplicate-emails")
     public ResponseEntity<Map<String, Object>> findDuplicateEmails() {
         Map<String, Object> response = new HashMap<>();
-        
-        // Find all emails that appear more than once
+
         var allStudents = studentRepository.findAll();
         Map<String, Integer> emailCounts = new HashMap<>();
         
         for (var student : allStudents) {
             emailCounts.put(student.getEmail(), emailCounts.getOrDefault(student.getEmail(), 0) + 1);
         }
-        
-        // Find duplicates
+
         Map<String, Object> duplicates = new HashMap<>();
         for (Map.Entry<String, Integer> entry : emailCounts.entrySet()) {
             if (entry.getValue() > 1) {
@@ -57,8 +55,7 @@ public class DebugController {
             response.put("message", "No duplicates found for email: " + email);
             return ResponseEntity.ok(response);
         }
-        
-        // Keep the first record, delete the rest
+
         var toKeep = duplicates.get(0);
         for (int i = 1; i < duplicates.size(); i++) {
             studentRepository.delete(duplicates.get(i));
@@ -75,11 +72,9 @@ public class DebugController {
         Map<String, Object> response = new HashMap<>();
         
         try {
-            // Get the current max ID
             Integer maxId = jdbcTemplate.queryForObject("SELECT MAX(id) FROM students", Integer.class);
             if (maxId == null) maxId = 0;
-            
-            // Reset auto-increment to maxId + 1
+
             jdbcTemplate.execute("ALTER TABLE students AUTO_INCREMENT = " + (maxId + 1));
             
             response.put("message", "Auto-increment reset successfully");
@@ -97,15 +92,11 @@ public class DebugController {
         Map<String, Object> response = new HashMap<>();
         
         try {
-            // Get current auto-increment value
             Long autoIncrement = jdbcTemplate.queryForObject(
                 "SELECT AUTO_INCREMENT FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'students'", 
                 Long.class);
-            
-            // Get count of records
+
             Integer count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM students", Integer.class);
-            
-            // Get max ID
             Integer maxId = jdbcTemplate.queryForObject("SELECT MAX(id) FROM students", Integer.class);
             
             response.put("autoIncrement", autoIncrement);
@@ -128,9 +119,7 @@ public class DebugController {
             int updatedCount = 0;
             
             for (Student student : allStudents) {
-                // Check if password is already encoded (BCrypt passwords start with $2a$, $2b$, etc.)
                 if (!student.getPassword().startsWith("$2")) {
-                    // Encode the plain text password
                     String encodedPassword = passwordEncoder.encode(student.getPassword());
                     student.setPassword(encodedPassword);
                     studentRepository.save(student);

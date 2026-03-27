@@ -28,5 +28,5 @@ public class Order {
     @Column(name = "created_date")
     private LocalDateTime createdDate;
 
-    private Long studentId; // Added for report linking
+    private Long studentId;
 }

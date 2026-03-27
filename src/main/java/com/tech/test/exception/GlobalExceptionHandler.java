@@ -1,6 +1,7 @@
 package com.tech.test.exception;
 
 import com.tech.test.dto.ErrorResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -80,7 +82,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
     }
 
-    // Existing Business Exceptions
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleResourceNotFoundException(ResourceNotFoundException ex) {
         ErrorResponse error = new ErrorResponse(
@@ -180,7 +181,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    // Validation Exception
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
@@ -200,11 +200,52 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
-    // Global Exception Handler
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<ErrorResponse> handleRuntimeException(RuntimeException ex) {
+        log.error("RuntimeException in image upload: {}", ex.getMessage(), ex);
+
+        if (ex.getMessage().contains("Image size must be less than or equal to 2MB") || 
+            ex.getMessage().contains("No image found") ||
+            ex.getMessage().contains("Failed to upload image")) {
+            
+            ErrorResponse error = new ErrorResponse(
+                    ex.getMessage(),
+                    HttpStatus.BAD_REQUEST.value()
+            );
+            return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+        }
+
+        ErrorResponse error = new ErrorResponse(
+                ex.getMessage(),
+                HttpStatus.INTERNAL_SERVER_ERROR.value()
+        );
+        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(java.io.IOException.class)
+    public ResponseEntity<ErrorResponse> handleIOException(java.io.IOException ex) {
+        log.error("IOException in image upload: {}", ex.getMessage(), ex);
+        ErrorResponse error = new ErrorResponse(
+                "Failed to process image file: " + ex.getMessage(),
+                HttpStatus.INTERNAL_SERVER_ERROR.value()
+        );
+        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
+        log.error("Unexpected error: {}", ex.getMessage(), ex);
+        
+
+        String errorMessage = ex.getMessage();
+        if (errorMessage == null) {
+            errorMessage = ex.getClass().getSimpleName() + ": " + ex.toString();
+        }
+        
         ErrorResponse error = new ErrorResponse(
-                "An unexpected error occurred. Please try again later.",
+                errorMessage,
                 HttpStatus.INTERNAL_SERVER_ERROR.value()
         );
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);

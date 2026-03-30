@@ -33,8 +33,11 @@ public class StudentController {
 
     private final StudentService service;
 
-    @Operation(summary = "Health check", description = "Check if the API is running")
-    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "API is healthy")})
+    @Operation(summary = "Health Check", description = "Check if the student management API is running and healthy")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "API is healthy and running"),
+        @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @GetMapping("/health")
     public ResponseEntity<Map<String, String>> health() {
         Map<String, String> response = new HashMap<>();
@@ -44,10 +47,11 @@ public class StudentController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(
-            summary = "Public test endpoint",
-            description = "Test endpoint that doesn't require authentication")
-    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Test successful")})
+    @Operation(summary = "Public Test Endpoint", description = "Test endpoint that doesn't require authentication for API testing")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Test successful - public endpoint accessible"),
+        @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @GetMapping("/public-test")
     public ResponseEntity<Map<String, String>> publicTest() {
         Map<String, String> response = new HashMap<>();
@@ -56,70 +60,61 @@ public class StudentController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(
-            summary = "Register a new student",
-            description = "Create a new student account with the provided details")
-    @ApiResponses(
-            value = {
-                @ApiResponse(
-                        responseCode = "200",
-                        description = "Student registered successfully",
-                        content = @Content(schema = @Schema(implementation = StudentDTO.class))),
-                @ApiResponse(responseCode = "409", description = "Email already exists"),
-                @ApiResponse(responseCode = "400", description = "Invalid input data")
-            })
+    @Operation(summary = "Register Student", description = "Create a new student account with registration details")
+    @ApiResponses(value = {
+        @ApiResponse(
+                responseCode = "200",
+                description = "Student registered successfully",
+                content = @Content(schema = @Schema(implementation = StudentDTO.class))),
+        @ApiResponse(responseCode = "409", description = "Email already exists"),
+        @ApiResponse(responseCode = "400", description = "Invalid input data"),
+        @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @PostMapping("/register")
     public ResponseEntity<StudentDTO> register(@RequestBody StudentDTO dto) {
         return ResponseEntity.ok(service.register(dto));
     }
 
-    @Operation(
-            summary = "Student login",
-            description = "Authenticate student credentials and return JWT token")
-    @ApiResponses(
-            value = {
-                @ApiResponse(
-                        responseCode = "200",
-                        description = "Login successful",
-                        content = @Content(schema = @Schema(implementation = JwtResponse.class))),
-                @ApiResponse(responseCode = "401", description = "Invalid credentials"),
-                @ApiResponse(responseCode = "404", description = "Student not found")
-            })
+    @Operation(summary = "Student Login", description = "Authenticate student credentials and return JWT token for session management")
+    @ApiResponses(value = {
+        @ApiResponse(
+                responseCode = "200",
+                description = "Login successful - JWT token returned",
+                content = @Content(schema = @Schema(implementation = JwtResponse.class))),
+        @ApiResponse(responseCode = "401", description = "Invalid credentials"),
+        @ApiResponse(responseCode = "404", description = "Student not found"),
+        @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @PostMapping("/login")
     public ResponseEntity<JwtResponse> login(@RequestBody LoginRequest req) {
         return ResponseEntity.ok(service.login(req));
     }
 
-    @Operation(
-            summary = "Get student by ID",
-            description = "Retrieve student details by their unique ID")
-    @ApiResponses(
-            value = {
-                @ApiResponse(
-                        responseCode = "200",
-                        description = "Student details retrieved successfully",
-                        content = @Content(schema = @Schema(implementation = StudentDTO.class))),
-                @ApiResponse(responseCode = "404", description = "Student not found")
-            })
+    @Operation(summary = "Get Student By ID", description = "Retrieve complete student details by their unique identifier")
+    @ApiResponses(value = {
+        @ApiResponse(
+                responseCode = "200",
+                description = "Student details retrieved successfully",
+                content = @Content(schema = @Schema(implementation = StudentDTO.class))),
+        @ApiResponse(responseCode = "404", description = "Student not found"),
+        @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @GetMapping("/{id}")
     public ResponseEntity<StudentDTO> getById(
-            @Parameter(description = "Student ID", required = true) @PathVariable Long id) {
+            @Parameter(description = "Unique identifier of the student", required = true) @PathVariable Long id) {
         return ResponseEntity.ok(service.getById(id));
     }
 
-    @Operation(
-            summary = "Upload student image",
-            description = "Upload a profile image for a student (max 2MB)")
-    @ApiResponses(
-            value = {
-                @ApiResponse(responseCode = "200", description = "Image uploaded successfully"),
-                @ApiResponse(responseCode = "400", description = "Invalid file or file too large"),
-                @ApiResponse(responseCode = "404", description = "Student not found"),
-                @ApiResponse(responseCode = "500", description = "Upload failed")
-            })
+    @Operation(summary = "Upload Student Image", description = "Upload a profile image for a student (JPEG format, max 2MB)")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Image uploaded successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid file format or file too large"),
+        @ApiResponse(responseCode = "404", description = "Student not found"),
+        @ApiResponse(responseCode = "500", description = "Upload failed due to server error")
+    })
     @PostMapping(value = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> uploadImage(
-            @Parameter(description = "Student ID", required = true) @PathVariable Long id,
+            @Parameter(description = "Unique identifier of the student", required = true) @PathVariable Long id,
             @Valid @ModelAttribute ImageUploadDTO uploadDTO) {
 
         MultipartFile image = uploadDTO.getImage();
@@ -127,20 +122,18 @@ public class StudentController {
         return ResponseEntity.ok(result);
     }
 
-    @Operation(
-            summary = "Get student image",
-            description = "Retrieve the profile image of a student")
-    @ApiResponses(
-            value = {
-                @ApiResponse(
-                        responseCode = "200",
-                        description = "Image retrieved successfully",
-                        content = @Content(mediaType = "image/jpeg")),
-                @ApiResponse(responseCode = "404", description = "Student or image not found")
-            })
+    @Operation(summary = "Get Student Image", description = "Retrieve the profile image of a specific student")
+    @ApiResponses(value = {
+        @ApiResponse(
+                responseCode = "200",
+                description = "Image retrieved successfully",
+                content = @Content(mediaType = "image/jpeg")),
+        @ApiResponse(responseCode = "404", description = "Student or image not found"),
+        @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @GetMapping(value = "/{id}/image", produces = MediaType.IMAGE_JPEG_VALUE)
     public ResponseEntity<byte[]> getImage(
-            @Parameter(description = "Student ID", required = true) @PathVariable Long id) {
+            @Parameter(description = "Unique identifier of the student", required = true) @PathVariable Long id) {
         byte[] imageData = service.getImage(id);
 
         HttpHeaders headers = new HttpHeaders();

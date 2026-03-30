@@ -2,6 +2,11 @@ package com.tech.test.controller;
 
 import com.tech.test.entity.Student;
 import com.tech.test.repository.StudentRepository;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/debug")
 @RequiredArgsConstructor
+@Tag(name = "Debug Controller", description = "Debug endpoints for managing student data and database operations")
 public class DebugController {
 
     private final StudentRepository studentRepository;
@@ -21,6 +27,11 @@ public class DebugController {
     private final PasswordEncoder passwordEncoder;
 
     @GetMapping("/duplicate-emails")
+    @Operation(summary = "Find duplicate emails", description = "Find all students with duplicate email addresses")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Successfully found duplicate emails"),
+        @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     public ResponseEntity<Map<String, Object>> findDuplicateEmails() {
         Map<String, Object> response = new HashMap<>();
 
@@ -47,7 +58,13 @@ public class DebugController {
     }
 
     @DeleteMapping("/remove-duplicate/{email}")
-    public ResponseEntity<Map<String, Object>> removeDuplicates(@PathVariable String email) {
+    @Operation(summary = "Remove duplicate students", description = "Remove duplicate student records for a given email, keeping only the first one")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Successfully removed duplicates or no duplicates found"),
+        @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    public ResponseEntity<Map<String, Object>> removeDuplicates(
+            @Parameter(description = "Email address for which to remove duplicates") @PathVariable String email) {
         Map<String, Object> response = new HashMap<>();
 
         var duplicates = studentRepository.findAllByEmail(email);
@@ -70,6 +87,11 @@ public class DebugController {
     }
 
     @PostMapping("/reset-auto-increment")
+    @Operation(summary = "Reset auto increment", description = "Reset the auto increment value for students table to max(id) + 1")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Successfully reset auto increment"),
+        @ApiResponse(responseCode = "500", description = "Failed to reset auto increment")
+    })
     public ResponseEntity<Map<String, Object>> resetAutoIncrement() {
         Map<String, Object> response = new HashMap<>();
 
@@ -91,6 +113,11 @@ public class DebugController {
     }
 
     @GetMapping("/table-info")
+    @Operation(summary = "Get table information", description = "Get information about the students table including auto increment value, record count, and max ID")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Successfully retrieved table information"),
+        @ApiResponse(responseCode = "500", description = "Failed to get table info")
+    })
     public ResponseEntity<Map<String, Object>> getTableInfo() {
         Map<String, Object> response = new HashMap<>();
 
@@ -117,6 +144,11 @@ public class DebugController {
     }
 
     @PostMapping("/encode-passwords")
+    @Operation(summary = "Encode existing passwords", description = "Encode all plain text passwords in the database using BCrypt")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Successfully encoded passwords"),
+        @ApiResponse(responseCode = "500", description = "Failed to encode passwords")
+    })
     public ResponseEntity<Map<String, Object>> encodeExistingPasswords() {
         Map<String, Object> response = new HashMap<>();
 
@@ -144,8 +176,15 @@ public class DebugController {
     }
 
     @PostMapping("/encode-password/{email}/{newPassword}")
+    @Operation(summary = "Encode specific password", description = "Encode and update password for a specific student by email")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Successfully updated password"),
+        @ApiResponse(responseCode = "200", description = "Student not found"),
+        @ApiResponse(responseCode = "500", description = "Failed to update password")
+    })
     public ResponseEntity<Map<String, Object>> encodeSpecificPassword(
-            @PathVariable String email, @PathVariable String newPassword) {
+            @Parameter(description = "Email address of the student") @PathVariable String email,
+            @Parameter(description = "New password to encode and set") @PathVariable String newPassword) {
         Map<String, Object> response = new HashMap<>();
 
         try {

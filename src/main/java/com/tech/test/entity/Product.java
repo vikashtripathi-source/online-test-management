@@ -21,4 +21,10 @@ public class Product {
     private String branch;
 
     private String imageUrl;
+
+    private int stockQuantity;
+
+    private String sku;
+
+    private boolean isActive;
 }

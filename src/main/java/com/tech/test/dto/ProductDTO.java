@@ -3,10 +3,7 @@ package com.tech.test.dto;
 import lombok.Data;
 
 @Data
-public class
-
-
-ProductDTO {
+public class ProductDTO {
 
     private Long id;
 

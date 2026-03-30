@@ -11,4 +11,5 @@ public class StudentDTO {
     private String password;
     private Long studentId;
     private String branch;
+    private String mobileNumber;
 }

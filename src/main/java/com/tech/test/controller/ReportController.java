@@ -18,17 +18,27 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/reports")
 @RequiredArgsConstructor
-@Tag(name = "Report Management API", description = "Operations related to generating and downloading reports")
+@Tag(
+        name = "Report Management API",
+        description = "Operations related to generating and downloading reports")
 public class ReportController {
 
     private final ReportService reportService;
 
     @GetMapping("/csv")
-    @Operation(summary = "Download CSV Report", description = "Generate and download a CSV report containing student data, order details, and addresses")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "CSV report successfully generated and downloaded"),
-        @ApiResponse(responseCode = "500", description = "Internal server error while generating report")
-    })
+    @Operation(
+            summary = "Download CSV Report",
+            description =
+                    "Generate and download a CSV report containing student data, order details, and addresses")
+    @ApiResponses(
+            value = {
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "CSV report successfully generated and downloaded"),
+                @ApiResponse(
+                        responseCode = "500",
+                        description = "Internal server error while generating report")
+            })
     public ResponseEntity<byte[]> downloadCsv() {
 
         List<ReportDTO> data = reportService.generateReportData();

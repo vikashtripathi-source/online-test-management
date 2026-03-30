@@ -24,6 +24,8 @@ public class Student {
 
     private String branch;
 
+    private String mobileNumber;
+
     @Lob
     @Column(name = "image", columnDefinition = "LONGBLOB")
     private byte[] image;

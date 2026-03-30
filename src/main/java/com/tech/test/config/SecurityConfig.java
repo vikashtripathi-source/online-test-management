@@ -18,7 +18,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -36,43 +35,9 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .authorizeHttpRequests(
-                        auth ->
-                                auth.requestMatchers(
-                                                "/api/students/health",
-                                                "/api/students/public-test",
-                                                "/api/students/register",
-                                                "/api/students/login")
-                                        .permitAll()
-                                        .requestMatchers("/api/students/*/image")
-                                        .permitAll()
-                                        .requestMatchers("/api/debug/**")
-                                        .permitAll()
-                                        .requestMatchers("/swagger-ui.html", "/swagger-ui/**")
-                                        .permitAll()
-                                        .requestMatchers("/v3/api-docs/**", "/swagger-resources/**")
-                                        .permitAll()
-                                        .requestMatchers(
-                                                "/webjars/**",
-                                                "/configuration/**",
-                                                "/configuration/ui")
-                                        .permitAll()
-                                        .requestMatchers(
-                                                "/configuration/security", "/swagger-config/**")
-                                        .permitAll()
-                                        .requestMatchers("/orders/**")
-                                        .authenticated()
-                                        .requestMatchers("/exams/**")
-                                        .authenticated()
-                                        .requestMatchers("/questions/**")
-                                        .authenticated()
-                                        .anyRequest()
-                                        .authenticated())
+                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
                 .sessionManagement(
-                        session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authenticationProvider(authenticationProvider())
-                .addFilterBefore(
-                        jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                        session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         return http.build();
     }
@@ -99,17 +64,39 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
+
+        // Allow all origins for development (you can restrict this in production)
         configuration.setAllowedOrigins(
-                Arrays.asList("http://localhost:8089", "http://127.0.0.1:8089"));
+                Arrays.asList(
+                        "http://localhost:3000", // React/Angular default
+                        "http://localhost:4200", // Angular default
+                        "http://localhost:8080", // Vue default
+                        "http://localhost:8089", // Your backend port
+                        "http://127.0.0.1:3000",
+                        "http://127.0.0.1:4200",
+                        "http://127.0.0.1:8080",
+                        "http://127.0.0.1:8089"));
+
+        // Allow all common HTTP methods
         configuration.setAllowedMethods(
-                Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD"));
+                Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"));
+
+        // Allow all headers
         configuration.setAllowedHeaders(Arrays.asList("*"));
+
+        // Expose all headers
         configuration.setExposedHeaders(Arrays.asList("*"));
+
+        // Allow credentials
         configuration.setAllowCredentials(true);
+
+        // Set max age for pre-flight requests
         configuration.setMaxAge(3600L);
 
+        // Apply to all endpoints
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
+
         return source;
     }
 }

@@ -65,35 +65,28 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // Allow all origins for development (you can restrict this in production)
         configuration.setAllowedOrigins(
                 Arrays.asList(
-                        "http://localhost:3000", // React/Angular default
-                        "http://localhost:4200", // Angular default
-                        "http://localhost:8080", // Vue default
-                        "http://localhost:8089", // Your backend port
+                        "http://localhost:3000",
+                        "http://localhost:4200",
+                        "http://localhost:8080",
+                        "http://localhost:8089",
                         "http://127.0.0.1:3000",
                         "http://127.0.0.1:4200",
                         "http://127.0.0.1:8080",
                         "http://127.0.0.1:8089"));
 
-        // Allow all common HTTP methods
         configuration.setAllowedMethods(
                 Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"));
 
-        // Allow all headers
         configuration.setAllowedHeaders(Arrays.asList("*"));
 
-        // Expose all headers
         configuration.setExposedHeaders(Arrays.asList("*"));
 
-        // Allow credentials
         configuration.setAllowCredentials(true);
 
-        // Set max age for pre-flight requests
         configuration.setMaxAge(3600L);
 
-        // Apply to all endpoints
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
 

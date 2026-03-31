@@ -61,7 +61,6 @@ public class Student {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // Legacy fields for backward compatibility
     private String name;
 
     private Long studentId;

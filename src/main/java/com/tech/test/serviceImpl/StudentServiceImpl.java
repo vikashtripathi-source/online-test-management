@@ -33,7 +33,6 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public StudentDTO register(StudentDTO dto) {
-        // Check if email already exists
         if (repository.findFirstByEmail(dto.getEmail()).isPresent()) {
             throw new EmailAlreadyExistsException(
                     "Email '"
@@ -43,7 +42,6 @@ public class StudentServiceImpl implements StudentService {
 
         Student student = new Student();
 
-        // Set new fields
         student.setEmail(dto.getEmail());
         student.setPassword(passwordEncoder.encode(dto.getPassword()));
         student.setFirstName(dto.getFirstName());
@@ -51,11 +49,10 @@ public class StudentServiceImpl implements StudentService {
         student.setBranch(Branch.valueOf(dto.getBranch()));
         student.setMobileNumber(dto.getMobileNumber());
         student.setImageUrl(dto.getImageUrl());
-        student.setRole(StudentRole.STUDENT); // Always STUDENT for regular registration
+        student.setRole(StudentRole.STUDENT);
 
-        // Legacy fields for backward compatibility
         student.setName(dto.getFirstName() + " " + dto.getLastName());
-        student.setStudentId(System.currentTimeMillis()); // Generate unique ID
+        student.setStudentId(System.currentTimeMillis());
 
         Student saved = repository.save(student);
 
@@ -67,17 +64,10 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public StudentDTO registerAdmin(AdminRegistrationDTO adminDTO) {
-        // CRITICAL: Validate admin code
         if (adminSecretCode == null) {
-            adminSecretCode = "admin123"; // Default for development
+            adminSecretCode = "admin123";
         }
 
-        // Temporarily disabled for testing
-        // if (!"admin123".equals(adminDTO.getAdminCode())) {
-        //     throw new RuntimeException("Invalid admin code");
-        // }
-
-        // Check if email already exists
         if (repository.findFirstByEmail(adminDTO.getEmail()).isPresent()) {
             throw new EmailAlreadyExistsException(
                     "Email '"
@@ -85,7 +75,6 @@ public class StudentServiceImpl implements StudentService {
                             + "' is already registered. Please use a different email or try logging in.");
         }
 
-        // Validate role
         StudentRole role;
         try {
             role = StudentRole.valueOf(adminDTO.getRole());
@@ -98,7 +87,6 @@ public class StudentServiceImpl implements StudentService {
 
         Student student = new Student();
 
-        // Set fields
         student.setEmail(adminDTO.getEmail());
         student.setPassword(passwordEncoder.encode(adminDTO.getPassword()));
         student.setFirstName(adminDTO.getFirstName());
@@ -106,11 +94,10 @@ public class StudentServiceImpl implements StudentService {
         student.setBranch(Branch.valueOf(adminDTO.getBranch()));
         student.setMobileNumber(adminDTO.getMobileNumber());
         student.setImageUrl(adminDTO.getImageUrl());
-        student.setRole(role); // User-selected role
+        student.setRole(role);
 
-        // Legacy fields for backward compatibility
         student.setName(adminDTO.getFirstName() + " " + adminDTO.getLastName());
-        student.setStudentId(System.currentTimeMillis()); // Generate unique ID
+        student.setStudentId(System.currentTimeMillis());
 
         Student saved = repository.save(student);
 
@@ -195,7 +182,6 @@ public class StudentServiceImpl implements StudentService {
                                         new StudentNotFoundException(
                                                 "Student with ID " + studentId + " not found."));
 
-        // Validate maximum file size (2MB = 2 * 1024 * 1024 bytes)
         long maxSize = 2 * 1024 * 1024;
         if (image.getSize() > maxSize) {
             throw new RuntimeException(

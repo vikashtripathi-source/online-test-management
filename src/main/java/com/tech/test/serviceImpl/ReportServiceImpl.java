@@ -33,19 +33,15 @@ public class ReportServiceImpl implements ReportService {
 
         for (StudentTestRecord studentTestRecord : studentTestRecords) {
 
-            // Get student information
             Student student = studentRepo.findById(studentTestRecord.getStudentId()).orElse(null);
             if (student == null) continue;
 
-            // Get address information
             Address address =
                     addressRepo.findByStudentId(studentTestRecord.getStudentId()).orElse(null);
 
-            // Get orders for this student
             List<Order> orders = orderRepo.findByStudentId(studentTestRecord.getStudentId());
 
             if (orders.isEmpty()) {
-                // Create report entry even if no orders exist
                 ReportDTO dto = new ReportDTO();
 
                 dto.setStudentName(student.getName());
@@ -62,7 +58,6 @@ public class ReportServiceImpl implements ReportService {
 
                 reportList.add(dto);
             } else {
-                // Create report entry for each order
                 for (Order order : orders) {
 
                     ReportDTO dto = new ReportDTO();

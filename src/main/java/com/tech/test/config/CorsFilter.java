@@ -18,7 +18,6 @@ public class CorsFilter implements Filter {
         HttpServletResponse response = (HttpServletResponse) res;
         HttpServletRequest request = (HttpServletRequest) req;
 
-        // Allow multiple origins
         String origin = request.getHeader("Origin");
         if (origin != null && (origin.contains("localhost") || origin.contains("127.0.0.1"))) {
             response.setHeader("Access-Control-Allow-Origin", origin);
@@ -39,12 +38,8 @@ public class CorsFilter implements Filter {
     }
 
     @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-        // Initialization if needed
-    }
+    public void init(FilterConfig filterConfig) throws ServletException {}
 
     @Override
-    public void destroy() {
-        // Cleanup if needed
-    }
+    public void destroy() {}
 }

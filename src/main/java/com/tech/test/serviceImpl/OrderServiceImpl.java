@@ -2,6 +2,7 @@ package com.tech.test.serviceImpl;
 
 import com.tech.test.dto.OrderDTO;
 import com.tech.test.entity.Order;
+import com.tech.test.enums.OrderStatus;
 import com.tech.test.exception.InvalidDataException;
 import com.tech.test.exception.KafkaException;
 import com.tech.test.exception.OrderException;
@@ -172,5 +173,41 @@ public class OrderServiceImpl implements com.tech.test.service.OrderService {
         dto.setStudentId(order.getStudentId());
 
         return dto;
+    }
+
+    @Override
+    public OrderDTO updateOrderStatus(Long id, OrderStatus status) {
+        try {
+            if (id == null || id <= 0) {
+                throw new InvalidDataException("Order ID must be a positive number");
+            }
+            if (status == null) {
+                throw new InvalidDataException("Order status cannot be null");
+            }
+
+            Optional<Order> optionalOrder = repository.findById(id);
+            if (optionalOrder.isPresent()) {
+                Order order = optionalOrder.get();
+                order.setStatus(status);
+                Order saved = repository.save(order);
+
+                try {
+                    producer.sendOrderUpdated(saved);
+                } catch (Exception e) {
+                    throw new KafkaException(
+                            "Failed to send order status update event to Kafka: " + e.getMessage(),
+                            e);
+                }
+
+                return orderMapper.toDTO(saved);
+            } else {
+                throw new OrderException("Order not found with ID: " + id);
+            }
+        } catch (InvalidDataException | OrderException | KafkaException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new OrderException(
+                    "Failed to update order status for ID " + id + ": " + e.getMessage(), e);
+        }
     }
 }

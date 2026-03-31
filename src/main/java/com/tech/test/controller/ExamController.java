@@ -125,6 +125,21 @@ public class ExamController {
                 .body("Test submission accepted and queued for evaluation");
     }
 
+    @GetMapping("/student-records")
+    @Operation(
+            summary = "Get all student test records",
+            description = "Retrieve all student test records from the database")
+    @ApiResponses(
+            value = {
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "Successfully retrieved student test records"),
+                @ApiResponse(responseCode = "500", description = "Internal server error")
+            })
+    public ResponseEntity<List<StudentTestRecordDTO>> getAllStudentTestRecords() {
+        return ResponseEntity.ok(service.getAllStudentTestRecords());
+    }
+
     @PostMapping("/student-records")
     @Operation(
             summary = "Save student test record",

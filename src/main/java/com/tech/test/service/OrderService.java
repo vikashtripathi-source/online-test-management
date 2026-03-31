@@ -1,6 +1,7 @@
 package com.tech.test.service;
 
 import com.tech.test.dto.OrderDTO;
+import com.tech.test.enums.OrderStatus;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,4 +20,6 @@ public interface OrderService {
     OrderDTO submitOrderWithAddress(OrderDTO orderDTO);
 
     List<OrderDTO> getOrdersByStudent(Long studentId);
+
+    OrderDTO updateOrderStatus(Long id, OrderStatus status);
 }

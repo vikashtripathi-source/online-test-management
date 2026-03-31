@@ -2,6 +2,7 @@ package com.tech.test.controller;
 
 import com.tech.test.dto.AddressDTO;
 import com.tech.test.dto.OrderDTO;
+import com.tech.test.dto.OrderStatusUpdateDTO;
 import com.tech.test.service.AddressService;
 import com.tech.test.service.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -156,5 +157,24 @@ public class OrderController {
             @Parameter(description = "ID of the student") @PathVariable Long studentId) {
 
         return ResponseEntity.ok(addressService.getByStudent(studentId));
+    }
+
+    @PutMapping("/{id}/status")
+    @Operation(
+            summary = "Update Order Status",
+            description = "Update the status of an existing order")
+    @ApiResponses(
+            value = {
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "Order status successfully updated"),
+                @ApiResponse(responseCode = "400", description = "Invalid status data"),
+                @ApiResponse(responseCode = "404", description = "Order not found"),
+                @ApiResponse(responseCode = "500", description = "Internal server error")
+            })
+    public ResponseEntity<OrderDTO> updateOrderStatus(
+            @Parameter(description = "ID of the order to update") @PathVariable Long id,
+            @Valid @RequestBody OrderStatusUpdateDTO statusUpdateDTO) {
+        return ResponseEntity.ok(orderService.updateOrderStatus(id, statusUpdateDTO.getStatus()));
     }
 }

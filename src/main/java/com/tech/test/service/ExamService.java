@@ -27,6 +27,8 @@ public interface ExamService {
 
     List<StudentTestRecordDTO> getRecordsByBranch(Branch branch);
 
+    List<StudentTestRecordDTO> getAllStudentTestRecords();
+
     List<QuestionDTO> getQuestionsByBranch(String branch);
 
     TestResultResponse getResult(Long studentId);

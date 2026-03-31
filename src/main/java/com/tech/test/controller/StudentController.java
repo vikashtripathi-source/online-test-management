@@ -1,5 +1,6 @@
 package com.tech.test.controller;
 
+import com.tech.test.dto.AdminRegistrationDTO;
 import com.tech.test.dto.ImageUploadDTO;
 import com.tech.test.dto.JwtResponse;
 import com.tech.test.dto.LoginRequest;
@@ -84,6 +85,73 @@ public class StudentController {
     @PostMapping("/register")
     public ResponseEntity<StudentDTO> register(@RequestBody StudentDTO dto) {
         return ResponseEntity.ok(service.register(dto));
+    }
+
+    @Operation(
+            summary = "Admin Registration",
+            description = "Register a new teacher/admin/manager user with secret code validation")
+    @ApiResponses(
+            value = {
+                @ApiResponse(
+                        responseCode = "201",
+                        description = "Admin registered successfully",
+                        content = @Content(schema = @Schema(implementation = StudentDTO.class))),
+                @ApiResponse(
+                        responseCode = "400",
+                        description = "Invalid admin code or email already exists"),
+                @ApiResponse(
+                        responseCode = "403",
+                        description = "Unauthorized: Invalid admin registration code"),
+                @ApiResponse(responseCode = "500", description = "Internal server error")
+            })
+    @PostMapping("/register/admin")
+    public ResponseEntity<?> registerAdmin(@RequestBody AdminRegistrationDTO adminDTO) {
+        try {
+            StudentDTO result = service.registerAdmin(adminDTO);
+            return ResponseEntity.status(HttpStatus.CREATED).body(result);
+        } catch (RuntimeException e) {
+            if (e.getMessage().contains("Invalid admin code")) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(
+                                Map.of(
+                                        "status",
+                                        403,
+                                        "message",
+                                        "Unauthorized: Invalid admin registration code",
+                                        "timestamp",
+                                        java.time.LocalDateTime.now().toString()));
+            } else if (e.getMessage().contains("already registered")) {
+                return ResponseEntity.badRequest()
+                        .body(
+                                Map.of(
+                                        "status",
+                                        400,
+                                        "message",
+                                        e.getMessage(),
+                                        "timestamp",
+                                        java.time.LocalDateTime.now().toString()));
+            } else if (e.getMessage().contains("Cannot register STUDENT")) {
+                return ResponseEntity.badRequest()
+                        .body(
+                                Map.of(
+                                        "status",
+                                        400,
+                                        "message",
+                                        e.getMessage(),
+                                        "timestamp",
+                                        java.time.LocalDateTime.now().toString()));
+            } else {
+                return ResponseEntity.badRequest()
+                        .body(
+                                Map.of(
+                                        "status",
+                                        400,
+                                        "message",
+                                        e.getMessage(),
+                                        "timestamp",
+                                        java.time.LocalDateTime.now().toString()));
+            }
+        }
     }
 
     @Operation(

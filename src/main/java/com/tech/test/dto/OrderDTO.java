@@ -1,9 +1,10 @@
 package com.tech.test.dto;
 
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
+import com.tech.test.enums.OrderStatus;
 import jakarta.validation.constraints.NotNull;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,22 +16,30 @@ public class OrderDTO {
 
     private Long id;
 
-    @NotBlank(message = "Product name cannot be blank")
+    @NotNull(message = "Student ID cannot be null")
+    private Long studentId;
+
+    private List<OrderItemDTO> orderItems;
+
+    @NotNull(message = "Total amount cannot be null")
+    private BigDecimal totalAmount;
+
+    private OrderStatus status;
+
+    private LocalDateTime orderDate;
+
+    private Long addressId;
+
+    // Legacy fields for backward compatibility
     private String productName;
 
-    @NotNull(message = "Quantity cannot be null")
-    @Min(value = 1, message = "Quantity must be at least 1")
-    private int quantity;
+    private Integer quantity;
 
     private String address;
 
-    @NotBlank(message = "City cannot be blank")
     private String city;
 
-    @NotBlank(message = "Zip code cannot be blank")
     private String zipCode;
 
     private LocalDateTime createdDate;
-
-    private Long studentId;
 }

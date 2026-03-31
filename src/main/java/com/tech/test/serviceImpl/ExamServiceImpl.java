@@ -229,6 +229,17 @@ public class ExamServiceImpl implements ExamService {
     }
 
     @Override
+    public List<StudentTestRecordDTO> getAllStudentTestRecords() {
+        try {
+            List<StudentTestRecord> records = studentTestRecordRepository.findAll();
+            return studentTestRecordMapper.toDTOList(records);
+        } catch (Exception e) {
+            throw new StudentRecordException(
+                    "Failed to retrieve all student test records: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
     public List<QuestionDTO> getQuestionsByBranch(String branch) {
 
         Branch b = Branch.valueOf(branch.toUpperCase());

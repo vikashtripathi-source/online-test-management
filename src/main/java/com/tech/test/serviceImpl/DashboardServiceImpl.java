@@ -31,7 +31,7 @@ public class DashboardServiceImpl implements DashboardService {
         Student student = studentRepository.findById(studentId).orElse(null);
         if (student != null) {
             dto.setStudentName(student.getName());
-            dto.setBranch(student.getBranch());
+            dto.setBranch(student.getBranch().name());
         }
 
         // Get orders

@@ -3,7 +3,9 @@ package com.tech.test.controller;
 import com.tech.test.dto.AddressDTO;
 import com.tech.test.dto.OrderDTO;
 import com.tech.test.dto.OrderStatusUpdateDTO;
+import com.tech.test.mapper.OrderMapper;
 import com.tech.test.service.AddressService;
+import com.tech.test.service.KafkaProducerService;
 import com.tech.test.service.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -27,6 +29,8 @@ public class OrderController {
 
     private final OrderService orderService;
     private final AddressService addressService;
+    private final KafkaProducerService kafkaProducerService;
+    private final OrderMapper orderMapper;
 
     @PostMapping
     @Operation(
@@ -40,6 +44,8 @@ public class OrderController {
             })
     public ResponseEntity<OrderDTO> create(@Valid @RequestBody OrderDTO orderDTO) {
         OrderDTO saved = orderService.createOrder(orderDTO);
+        // Send order to Kafka for processing
+        kafkaProducerService.sendOrder(orderMapper.toEntity(saved));
         return new ResponseEntity<>(saved, HttpStatus.CREATED);
     }
 
@@ -90,7 +96,10 @@ public class OrderController {
     public ResponseEntity<OrderDTO> updateOrder(
             @Parameter(description = "ID of the order to update") @PathVariable Long id,
             @Valid @RequestBody OrderDTO orderDTO) {
-        return ResponseEntity.ok(orderService.updateOrder(id, orderDTO));
+        OrderDTO updated = orderService.updateOrder(id, orderDTO);
+        // Send order update to Kafka
+        kafkaProducerService.sendOrderUpdated(orderMapper.toEntity(updated));
+        return ResponseEntity.ok(updated);
     }
 
     @DeleteMapping("/{id}")
@@ -104,6 +113,8 @@ public class OrderController {
     public ResponseEntity<Void> deleteOrder(
             @Parameter(description = "ID of the order to delete") @PathVariable Long id) {
         orderService.deleteOrder(id);
+        // Send order deletion to Kafka
+        kafkaProducerService.sendOrderDeleted(id);
         return ResponseEntity.noContent().build();
     }
 

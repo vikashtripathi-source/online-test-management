@@ -33,4 +33,6 @@ public class QuestionDTO {
     private String correctAnswer;
 
     private String branch;
+
+    private String difficulty;
 }

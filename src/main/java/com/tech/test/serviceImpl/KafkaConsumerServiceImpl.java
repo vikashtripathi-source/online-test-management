@@ -4,8 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tech.test.dto.AnswerRequest;
 import com.tech.test.dto.OrderDTO;
 import com.tech.test.dto.SubmitTestRequest;
+import com.tech.test.entity.Order;
 import com.tech.test.entity.Question;
 import com.tech.test.entity.StudentAnswer;
+import com.tech.test.entity.StudentTestRecord;
 import com.tech.test.exception.KafkaException;
 import com.tech.test.exception.TestSubmissionException;
 import com.tech.test.mapper.OrderMapper;
@@ -13,11 +15,15 @@ import com.tech.test.repository.QuestionRepository;
 import com.tech.test.repository.StudentAnswerRepository;
 import com.tech.test.service.EmailService;
 import com.tech.test.service.InventoryService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
 @Service
 public class KafkaConsumerServiceImpl implements com.tech.test.service.KafkaConsumerService {
+
+    private static final Logger logger = LoggerFactory.getLogger(KafkaConsumerServiceImpl.class);
 
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final QuestionRepository questionRepo;
@@ -89,14 +95,85 @@ public class KafkaConsumerServiceImpl implements com.tech.test.service.KafkaCons
                 }
             }
 
-            System.out.println(" Test processed for student: " + request.getStudentId());
-            System.out.println(" Score: " + score + "/" + total);
+            logger.info(
+                    "Test processed for student: {} with score: {}/{}",
+                    request.getStudentId(),
+                    score,
+                    total);
 
         } catch (TestSubmissionException e) {
+            logger.error("Test submission processing failed: {}", e.getMessage(), e);
             throw new KafkaException("Test submission processing failed: " + e.getMessage(), e);
         } catch (Exception e) {
+            logger.error("Error processing Kafka test submission message: {}", e.getMessage(), e);
             throw new KafkaException(
                     "Error processing Kafka test submission message: " + e.getMessage(), e);
+        }
+    }
+
+    @KafkaListener(topics = "question-added-topic", groupId = "admin-group")
+    public void consumeQuestionAdded(Question question) {
+        try {
+            logger.info("New question added: {} - {}", question.getId(), question.getQuestion());
+        } catch (Exception e) {
+            logger.error("Error processing question added event: {}", e.getMessage(), e);
+            throw new KafkaException("Error processing question added event: " + e.getMessage(), e);
+        }
+    }
+
+    @KafkaListener(topics = "question-deleted-topic", groupId = "admin-group")
+    public void consumeQuestionDeleted(Long questionId) {
+        try {
+            logger.info("Question deleted: {}", questionId);
+        } catch (Exception e) {
+            logger.error("Error processing question deleted event: {}", e.getMessage(), e);
+            throw new KafkaException(
+                    "Error processing question deleted event: " + e.getMessage(), e);
+        }
+    }
+
+    @KafkaListener(topics = "student-record-updated-topic", groupId = "admin-group")
+    public void consumeStudentRecordUpdated(StudentTestRecord record) {
+        try {
+            logger.info(
+                    "Student record updated: {} - Score: {}",
+                    record.getStudentId(),
+                    record.getScore());
+        } catch (Exception e) {
+            logger.error("Error processing student record updated event: {}", e.getMessage(), e);
+            throw new KafkaException(
+                    "Error processing student record updated event: " + e.getMessage(), e);
+        }
+    }
+
+    @KafkaListener(topics = "student-record-deleted-topic", groupId = "admin-group")
+    public void consumeStudentRecordDeleted(Long recordId) {
+        try {
+            logger.info("Student record deleted: {}", recordId);
+        } catch (Exception e) {
+            logger.error("Error processing student record deleted event: {}", e.getMessage(), e);
+            throw new KafkaException(
+                    "Error processing student record deleted event: " + e.getMessage(), e);
+        }
+    }
+
+    @KafkaListener(topics = "order-updated-topic", groupId = "admin-group")
+    public void consumeOrderUpdated(Order order) {
+        try {
+            logger.info("Order updated: {} - Status: {}", order.getId(), order.getStatus());
+        } catch (Exception e) {
+            logger.error("Error processing order updated event: {}", e.getMessage(), e);
+            throw new KafkaException("Error processing order updated event: " + e.getMessage(), e);
+        }
+    }
+
+    @KafkaListener(topics = "order-deleted-topic", groupId = "admin-group")
+    public void consumeOrderDeleted(Long orderId) {
+        try {
+            logger.info("Order deleted: {}", orderId);
+        } catch (Exception e) {
+            logger.error("Error processing order deleted event: {}", e.getMessage(), e);
+            throw new KafkaException("Error processing order deleted event: " + e.getMessage(), e);
         }
     }
 
@@ -113,12 +190,16 @@ public class KafkaConsumerServiceImpl implements com.tech.test.service.KafkaCons
                 throw new KafkaException("Invalid quantity in order DTO");
             }
 
-            System.out.println("Received Order: " + orderDTO.getProductName());
+            logger.info(
+                    "Received Order: {} - Quantity: {}",
+                    orderDTO.getProductName(),
+                    orderDTO.getQuantity());
             sendEmail(orderDTO);
             updateInventory(orderDTO);
         } catch (KafkaException e) {
             throw e;
         } catch (Exception e) {
+            logger.error("Error processing Kafka order message: {}", e.getMessage(), e);
             throw new KafkaException("Error processing Kafka order message: " + e.getMessage(), e);
         }
     }

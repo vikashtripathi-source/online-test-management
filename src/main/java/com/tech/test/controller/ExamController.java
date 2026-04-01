@@ -5,6 +5,7 @@ import com.tech.test.dto.StudentTestRecordDTO;
 import com.tech.test.dto.SubmitTestRequest;
 import com.tech.test.dto.TestResultResponse;
 import com.tech.test.enums.Branch;
+import com.tech.test.mapper.QuestionMapper;
 import com.tech.test.service.ExamService;
 import com.tech.test.service.KafkaProducerService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -29,6 +30,7 @@ public class ExamController {
 
     private final ExamService service;
     private final KafkaProducerService kafkaProducerService;
+    private final QuestionMapper questionMapper;
 
     @PostMapping("/questions")
     @Operation(summary = "Add a question", description = "Add a new question to the question bank")
@@ -40,6 +42,8 @@ public class ExamController {
             })
     public ResponseEntity<QuestionDTO> addQuestion(@Valid @RequestBody QuestionDTO questionDTO) {
         QuestionDTO saved = service.addQuestion(questionDTO);
+        // Send question added event to Kafka
+        kafkaProducerService.sendQuestionAdded(questionMapper.toEntity(saved));
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
@@ -87,6 +91,8 @@ public class ExamController {
     public ResponseEntity<Void> deleteQuestion(
             @Parameter(description = "ID of the question to delete") @PathVariable Long id) {
         service.deleteQuestion(id);
+        // Send question deleted event to Kafka
+        kafkaProducerService.sendQuestionDeleted(id);
         return ResponseEntity.noContent().build();
     }
 

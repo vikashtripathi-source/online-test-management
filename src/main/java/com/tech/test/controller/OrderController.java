@@ -1,10 +1,12 @@
 package com.tech.test.controller;
 
 import com.tech.test.dto.AddressDTO;
+import com.tech.test.dto.CartOrderRequest;
 import com.tech.test.dto.OrderDTO;
 import com.tech.test.dto.OrderStatusUpdateDTO;
 import com.tech.test.mapper.OrderMapper;
 import com.tech.test.service.AddressService;
+import com.tech.test.service.CartService;
 import com.tech.test.service.KafkaProducerService;
 import com.tech.test.service.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -31,6 +33,7 @@ public class OrderController {
     private final AddressService addressService;
     private final KafkaProducerService kafkaProducerService;
     private final OrderMapper orderMapper;
+    private final CartService cartService;
 
     @PostMapping
     @Operation(
@@ -132,6 +135,26 @@ public class OrderController {
             })
     public ResponseEntity<OrderDTO> submitOrderWithAddress(@Valid @RequestBody OrderDTO orderDTO) {
         return ResponseEntity.ok(orderService.submitOrderWithAddress(orderDTO));
+    }
+
+    @PostMapping("/submit-cart")
+    @Operation(
+            summary = "Submit Order From Cart",
+            description = "Submit an order using items from the student's cart")
+    @ApiResponses(
+            value = {
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "Order successfully submitted from cart"),
+                @ApiResponse(responseCode = "400", description = "Invalid cart or address data"),
+                @ApiResponse(
+                        responseCode = "404",
+                        description = "Cart is empty or student not found"),
+                @ApiResponse(responseCode = "500", description = "Internal server error")
+            })
+    public ResponseEntity<OrderDTO> submitOrderFromCart(
+            @Valid @RequestBody CartOrderRequest cartOrderRequest) {
+        return ResponseEntity.ok(orderService.submitOrderFromCart(cartOrderRequest));
     }
 
     @GetMapping("/student/{studentId}")

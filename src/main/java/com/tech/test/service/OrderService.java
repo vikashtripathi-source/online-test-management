@@ -1,5 +1,6 @@
 package com.tech.test.service;
 
+import com.tech.test.dto.CartOrderRequest;
 import com.tech.test.dto.OrderDTO;
 import com.tech.test.enums.OrderStatus;
 import java.util.List;
@@ -18,6 +19,8 @@ public interface OrderService {
     void deleteOrder(Long id);
 
     OrderDTO submitOrderWithAddress(OrderDTO orderDTO);
+
+    OrderDTO submitOrderFromCart(CartOrderRequest cartOrderRequest);
 
     List<OrderDTO> getOrdersByStudent(Long studentId);
 

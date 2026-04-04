@@ -9,6 +9,5 @@ import org.springframework.test.context.ActiveProfiles;
 public class KafkaIntegrationTest {
 
     @Test
-    void contextLoads() {
-    }
+    void contextLoads() {}
 }

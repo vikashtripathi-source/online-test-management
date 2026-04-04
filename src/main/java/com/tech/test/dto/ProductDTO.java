@@ -17,7 +17,7 @@ public class ProductDTO {
     private Branch branch;
 
     private String imageUrl;
-    
+
     private String imageFilename;
 
     private int stockQuantity;

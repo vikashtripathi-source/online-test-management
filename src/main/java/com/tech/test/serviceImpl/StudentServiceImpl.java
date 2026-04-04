@@ -5,7 +5,6 @@ import com.tech.test.dto.JwtResponse;
 import com.tech.test.dto.LoginRequest;
 import com.tech.test.dto.StudentDTO;
 import com.tech.test.entity.Student;
-import com.tech.test.enums.Branch;
 import com.tech.test.enums.StudentRole;
 import com.tech.test.exception.EmailAlreadyExistsException;
 import com.tech.test.exception.InvalidPasswordException;
@@ -13,15 +12,14 @@ import com.tech.test.exception.StudentNotFoundException;
 import com.tech.test.repository.StudentRepository;
 import com.tech.test.service.StudentService;
 import com.tech.test.util.JwtUtil;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.UUID;
-import lombok.extern.slf4j.Slf4j;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -35,7 +33,7 @@ public class StudentServiceImpl implements StudentService {
     private final StudentRepository repository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
-    
+
     @Value("${app.upload.student.dir:./uploads/student-images}")
     private String uploadDir;
 
@@ -196,23 +194,24 @@ public class StudentServiceImpl implements StudentService {
             if (!Files.exists(uploadPath)) {
                 Files.createDirectories(uploadPath);
             }
-            
+
             String originalFilename = image.getOriginalFilename();
-            String fileExtension = originalFilename != null && originalFilename.contains(".") 
-                    ? originalFilename.substring(originalFilename.lastIndexOf(".")) 
-                    : "";
+            String fileExtension =
+                    originalFilename != null && originalFilename.contains(".")
+                            ? originalFilename.substring(originalFilename.lastIndexOf("."))
+                            : "";
             String uniqueFilename = UUID.randomUUID().toString() + fileExtension;
-            
+
             Path filePath = uploadPath.resolve(uniqueFilename);
             Files.copy(image.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-            
+
             String imageUrl = "/api/students/" + studentId + "/image";
             student.setImageUrl(imageUrl);
             student.setImageFilename(uniqueFilename);
             repository.save(student);
-            
+
             return "Image uploaded successfully for student ID: " + studentId;
-            
+
         } catch (IOException e) {
             throw new RuntimeException("Failed to upload image: " + e.getMessage());
         }
@@ -221,7 +220,7 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public byte[] getImage(Long studentId) {
         log.debug("Looking for student with ID: {}", studentId);
-        
+
         Student student =
                 repository
                         .findById(studentId)
@@ -231,28 +230,28 @@ public class StudentServiceImpl implements StudentService {
                                                 "Student with ID " + studentId + " not found."));
 
         log.debug("Found student: {}", student.getEmail());
-        
+
         if (student.getImageFilename() == null) {
             log.debug("No image filename found for student ID: {}", studentId);
             throw new RuntimeException("No image found for student ID: " + studentId);
         }
-        
+
         try {
             Path uploadPath = Paths.get(uploadDir);
             Path filePath = uploadPath.resolve(student.getImageFilename());
-            
+
             log.debug("Looking for image file: {}", filePath);
-            
+
             if (!Files.exists(filePath)) {
                 log.error("Image file not found: {}", filePath);
                 throw new RuntimeException("Image file not found: " + student.getImageFilename());
             }
-            
+
             byte[] imageBytes = Files.readAllBytes(filePath);
             log.debug("Successfully read image file, size: {} bytes", imageBytes.length);
-            
+
             return imageBytes;
-            
+
         } catch (IOException e) {
             log.error("Failed to retrieve image for student ID: {}", studentId, e);
             throw new RuntimeException("Failed to retrieve image: " + e.getMessage());

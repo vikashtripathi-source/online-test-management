@@ -49,7 +49,7 @@ public class Student {
     private String mobileNumber;
 
     private String imageUrl;
-    
+
     private String imageFilename;
 
     @NotNull(message = "Role cannot be null")

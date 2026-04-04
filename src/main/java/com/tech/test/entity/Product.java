@@ -24,7 +24,7 @@ public class Product {
     private Branch branch;
 
     private String imageUrl;
-    
+
     private String imageFilename;
 
     private int stockQuantity;

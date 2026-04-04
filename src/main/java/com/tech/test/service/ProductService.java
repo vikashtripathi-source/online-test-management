@@ -17,8 +17,8 @@ public interface ProductService {
     ProductDTO update(Long id, ProductDTO dto);
 
     void delete(Long id);
-    
+
     String uploadProductImage(Long id, MultipartFile image);
-    
+
     byte[] getProductImage(Long id);
 }

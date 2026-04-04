@@ -14,9 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
-@Tag(
-        name = "Users Product API",
-        description = "Product endpoints accessible under /users path")
+@Tag(name = "Users Product API", description = "Product endpoints accessible under /users path")
 public class UsersController {
 
     private final ProductService productService;

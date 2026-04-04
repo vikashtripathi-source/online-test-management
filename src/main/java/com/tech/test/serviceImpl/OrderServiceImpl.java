@@ -216,7 +216,9 @@ public class OrderServiceImpl implements com.tech.test.service.OrderService {
                                                             + cartItem.getProductId());
                                         }
 
-                                        product.setStockQuantity(product.getStockQuantity() - cartItem.getQuantity());
+                                        product.setStockQuantity(
+                                                product.getStockQuantity()
+                                                        - cartItem.getQuantity());
                                         productRepository.save(product);
 
                                         OrderItem orderItem = new OrderItem();

@@ -96,9 +96,16 @@ public class CartServiceImpl implements CartService {
                                         new RuntimeException(
                                                 "Product not found: " + cart.getProductId()));
 
-        if (product.getStockQuantity() < quantity) {
-            throw new RuntimeException("Insufficient stock for product: " + cart.getProductId());
+        int quantityDifference = quantity - cart.getQuantity();
+        
+        if (quantityDifference > 0) {
+            if (product.getStockQuantity() < quantityDifference) {
+                throw new RuntimeException("Insufficient stock for product: " + cart.getProductId());
+            }
         }
+
+        product.setStockQuantity(product.getStockQuantity() - quantityDifference);
+        productRepository.save(product);
 
         cart.setQuantity(quantity);
         Cart updatedCart = cartRepository.save(cart);
@@ -107,14 +114,30 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public void removeCartItem(Long itemId) {
-        if (!cartRepository.existsById(itemId)) {
-            throw new RuntimeException("Cart item not found: " + itemId);
-        }
+        Cart cart = cartRepository.findById(itemId)
+                .orElseThrow(() -> new RuntimeException("Cart item not found: " + itemId));
+        
+        Product product = productRepository.findById(cart.getProductId())
+                .orElseThrow(() -> new RuntimeException("Product not found: " + cart.getProductId()));
+        
+        product.setStockQuantity(product.getStockQuantity() + cart.getQuantity());
+        productRepository.save(product);
+        
         cartRepository.deleteById(itemId);
     }
 
     @Override
     public void clearCart(Long studentId) {
+        List<Cart> cartItems = cartRepository.findByStudentId(studentId);
+        
+        for (Cart cart : cartItems) {
+            Product product = productRepository.findById(cart.getProductId())
+                    .orElseThrow(() -> new RuntimeException("Product not found: " + cart.getProductId()));
+            
+            product.setStockQuantity(product.getStockQuantity() + cart.getQuantity());
+            productRepository.save(product);
+        }
+        
         cartRepository.deleteByStudentId(studentId);
     }
 

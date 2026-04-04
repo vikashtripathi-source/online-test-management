@@ -10,8 +10,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/products")
@@ -230,5 +232,40 @@ public class ProductController {
     public ResponseEntity<List<ProductDTO>> getBranchInventory(
             @Parameter(description = "Branch to filter inventory") @PathVariable String branch) {
         return ResponseEntity.ok(service.getByBranch(branch));
+    }
+
+    @PostMapping(value = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(
+            summary = "Upload Product Image",
+            description = "Upload an image for a product (no size restrictions)")
+    @ApiResponses(
+            value = {
+                @ApiResponse(responseCode = "200", description = "Image uploaded successfully"),
+                @ApiResponse(responseCode = "404", description = "Product not found"),
+                @ApiResponse(responseCode = "500", description = "Internal server error")
+            })
+    public ResponseEntity<String> uploadImage(
+            @Parameter(description = "ID of the product", required = true) @PathVariable Long id,
+            @RequestParam("image") MultipartFile image) {
+
+        String imageUrl = service.uploadProductImage(id, image);
+        return ResponseEntity.ok(imageUrl);
+    }
+
+    @GetMapping(value = "/{id}/image", produces = MediaType.IMAGE_JPEG_VALUE)
+    @Operation(
+            summary = "Get Product Image",
+            description = "Retrieve the image of a specific product")
+    @ApiResponses(
+            value = {
+                @ApiResponse(responseCode = "200", description = "Image retrieved successfully"),
+                @ApiResponse(responseCode = "404", description = "Product or image not found"),
+                @ApiResponse(responseCode = "500", description = "Internal server error")
+            })
+    public ResponseEntity<byte[]> getProductImage(
+            @Parameter(description = "ID of the product", required = true) @PathVariable Long id) {
+
+        byte[] imageData = service.getProductImage(id);
+        return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(imageData);
     }
 }

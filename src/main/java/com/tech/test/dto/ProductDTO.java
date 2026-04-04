@@ -1,5 +1,6 @@
 package com.tech.test.dto;
 
+import com.tech.test.enums.Branch;
 import lombok.Data;
 
 @Data
@@ -13,9 +14,11 @@ public class ProductDTO {
 
     private double price;
 
-    private String branch;
+    private Branch branch;
 
     private String imageUrl;
+    
+    private String imageFilename;
 
     private int stockQuantity;
 

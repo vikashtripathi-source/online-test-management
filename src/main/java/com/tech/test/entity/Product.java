@@ -1,5 +1,6 @@
 package com.tech.test.entity;
 
+import com.tech.test.enums.Branch;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -18,9 +19,13 @@ public class Product {
 
     private double price;
 
-    private String branch;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Branch branch;
 
     private String imageUrl;
+    
+    private String imageFilename;
 
     private int stockQuantity;
 

@@ -1,5 +1,6 @@
 package com.tech.test.dto;
 
+import com.tech.test.enums.Branch;
 import com.tech.test.enums.StudentRole;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -31,7 +32,7 @@ public class StudentDTO {
     @Size(min = 1, max = 50, message = "Last name must be between 1 and 50 characters")
     private String lastName;
 
-    private String branch;
+    private Branch branch;
 
     @Pattern(regexp = "\\d{10}", message = "Mobile number must be exactly 10 digits")
     private String mobileNumber;
@@ -44,6 +45,4 @@ public class StudentDTO {
 
     // Legacy fields for backward compatibility
     private String name;
-
-    private Long studentId;
 }

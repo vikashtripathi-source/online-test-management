@@ -10,7 +10,5 @@ public class KafkaIntegrationTest {
 
     @Test
     void contextLoads() {
-        // This test verifies that the Spring context loads successfully
-        // including Kafka configuration and beans
     }
 }

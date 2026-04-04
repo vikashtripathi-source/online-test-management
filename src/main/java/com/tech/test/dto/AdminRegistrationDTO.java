@@ -1,7 +1,9 @@
 package com.tech.test.dto;
 
+import com.tech.test.enums.Branch;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -29,11 +31,8 @@ public class AdminRegistrationDTO {
     @Size(min = 1, max = 50, message = "Last name must be between 1 and 50 characters")
     private String lastName;
 
-    @NotBlank(message = "Branch is required")
-    @Pattern(
-            regexp = "CSE|ECE|MECHANICAL|CIVIL|ELECTRICAL|EC|IT",
-            message = "Branch must be one of: CSE, ECE, Mechanical, Civil, Electrical, EC, IT")
-    private String branch;
+    @NotNull(message = "Branch cannot be null")
+    private Branch branch;
 
     @NotBlank(message = "Mobile number is required")
     @Pattern(regexp = "\\d{10}", message = "Mobile number must be exactly 10 digits")

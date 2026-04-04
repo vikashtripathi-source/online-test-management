@@ -26,7 +26,6 @@ public class AdminPanelEndpointsTest {
 
     @Test
     public void testGetAllStudentTestRecords() {
-        // Test data
         StudentTestRecordDTO record1 = new StudentTestRecordDTO();
         record1.setId(1L);
         record1.setStudentId(101L);
@@ -53,7 +52,6 @@ public class AdminPanelEndpointsTest {
 
         when(examService.getAllStudentTestRecords()).thenReturn(mockRecords);
 
-        // This test verifies that the service method exists and works
         List<StudentTestRecordDTO> result = examService.getAllStudentTestRecords();
         assert result.size() == 2;
         assert result.get(0).getStudentName().equals("John Doe");
@@ -62,12 +60,9 @@ public class AdminPanelEndpointsTest {
 
     @Test
     public void testUpdateOrderStatus() {
-        // Test data
         OrderStatusUpdateDTO statusUpdate = new OrderStatusUpdateDTO();
         statusUpdate.setStatus(OrderStatus.SHIPPED);
 
-        // This test verifies that the service method signature is correct
-        // The actual implementation would be tested in integration tests
         assert statusUpdate.getStatus() == OrderStatus.SHIPPED;
     }
 }

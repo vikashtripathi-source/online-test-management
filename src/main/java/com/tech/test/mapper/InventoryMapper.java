@@ -14,7 +14,6 @@ public interface InventoryMapper {
 
     Inventory toEntity(InventoryDTO inventoryDTO);
 
-    // For collections
     java.util.List<InventoryDTO> toDTOList(java.util.List<Inventory> inventories);
 
     java.util.List<Inventory> toEntityList(java.util.List<InventoryDTO> inventoryDTOs);

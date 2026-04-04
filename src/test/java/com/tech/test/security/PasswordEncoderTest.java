@@ -20,7 +20,6 @@ public class PasswordEncoderTest {
         assertTrue(passwordEncoder.matches(rawPassword, encodedPassword));
         assertFalse(passwordEncoder.matches("wrongPassword", encodedPassword));
 
-        // Test that encoded password starts with BCrypt prefix
         assertTrue(
                 encodedPassword.startsWith("$2a$")
                         || encodedPassword.startsWith("$2b$")

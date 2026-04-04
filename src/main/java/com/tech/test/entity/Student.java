@@ -49,6 +49,8 @@ public class Student {
     private String mobileNumber;
 
     private String imageUrl;
+    
+    private String imageFilename;
 
     @NotNull(message = "Role cannot be null")
     @Enumerated(EnumType.STRING)
@@ -62,12 +64,6 @@ public class Student {
     private LocalDateTime updatedAt;
 
     private String name;
-
-    private Long studentId;
-
-    @Lob
-    @Column(name = "image", columnDefinition = "LONGBLOB")
-    private byte[] image;
 
     @PrePersist
     protected void onCreate() {

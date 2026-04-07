@@ -15,6 +15,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -54,6 +55,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Cacheable(value = "products", key = "#id")
     public ProductDTO getById(Long id) {
         Product p = repo.findById(id).orElseThrow(() -> new RuntimeException("Product not found"));
 
@@ -112,7 +114,7 @@ public class ProductServiceImpl implements ProductService {
             Path filePath = uploadPath.resolve(uniqueFilename);
             Files.copy(image.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
-            String imageUrl = "/api/products/" + id + "/image";
+            String imageUrl = "/uploads/product-images/" + uniqueFilename;
             product.setImageUrl(imageUrl);
             product.setImageFilename(uniqueFilename);
             repo.save(product);
@@ -140,7 +142,9 @@ public class ProductServiceImpl implements ProductService {
             Path filePath = uploadPath.resolve(product.getImageFilename());
 
             if (!Files.exists(filePath)) {
-                throw new RuntimeException("Image file not found: " + product.getImageFilename());
+                // Log warning and return null instead of throwing exception
+                System.err.println("Warning: Image file not found: " + product.getImageFilename());
+                return null;
             }
 
             return Files.readAllBytes(filePath);

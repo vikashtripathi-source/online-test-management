@@ -3,6 +3,7 @@ package com.tech.test.serviceImpl;
 import com.tech.test.dto.CartItemResponse;
 import com.tech.test.dto.CartOrderRequest;
 import com.tech.test.dto.OrderDTO;
+import com.tech.test.dto.OrderItemDTO;
 import com.tech.test.entity.Order;
 import com.tech.test.entity.OrderItem;
 import com.tech.test.entity.Product;
@@ -17,6 +18,7 @@ import com.tech.test.service.CartService;
 import com.tech.test.service.KafkaProducerService;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -42,6 +44,13 @@ public class OrderServiceImpl implements com.tech.test.service.OrderService {
             if (orderDTO == null) {
                 throw new InvalidDataException("Order DTO cannot be null");
             }
+
+            // Handle new orderItems structure
+            if (orderDTO.getOrderItems() != null && !orderDTO.getOrderItems().isEmpty()) {
+                return createOrderWithItems(orderDTO);
+            }
+
+            // Handle legacy structure for backward compatibility
             if (orderDTO.getProductName() == null || orderDTO.getProductName().trim().isEmpty()) {
                 throw new InvalidDataException("Product name cannot be null or empty");
             }
@@ -60,7 +69,7 @@ public class OrderServiceImpl implements com.tech.test.service.OrderService {
                         "Failed to send order event to Kafka: " + e.getMessage(), e);
             }
 
-            return orderMapper.toDTO(savedOrder);
+            return createSimpleDTO(savedOrder);
         } catch (InvalidDataException | KafkaException e) {
             throw e;
         } catch (Exception e) {
@@ -71,7 +80,7 @@ public class OrderServiceImpl implements com.tech.test.service.OrderService {
     public List<OrderDTO> getAllOrders() {
         try {
             return repository.findAll().stream()
-                    .map(orderMapper::toDTO)
+                    .map(this::createSimpleDTO)
                     .collect(Collectors.toList());
         } catch (Exception e) {
             throw new OrderException("Failed to retrieve all orders: " + e.getMessage(), e);
@@ -242,7 +251,16 @@ public class OrderServiceImpl implements com.tech.test.service.OrderService {
                         "Failed to send order event to Kafka: " + e.getMessage(), e);
             }
 
-            return orderMapper.toDTO(savedOrder);
+            // Temporarily bypass mapper to avoid circular reference
+            OrderDTO dto = new OrderDTO();
+            dto.setId(savedOrder.getId());
+            dto.setStudentId(savedOrder.getStudentId());
+            dto.setTotalAmount(savedOrder.getTotalAmount());
+            dto.setStatus(savedOrder.getStatus());
+            dto.setOrderDate(savedOrder.getOrderDate());
+            dto.setAddressId(savedOrder.getAddressId());
+            dto.setCreatedDate(savedOrder.getCreatedDate());
+            return dto;
         } catch (InvalidDataException | OrderException | KafkaException e) {
             throw e;
         } catch (Exception e) {
@@ -308,5 +326,67 @@ public class OrderServiceImpl implements com.tech.test.service.OrderService {
             throw new OrderException(
                     "Failed to update order status for ID " + id + ": " + e.getMessage(), e);
         }
+    }
+
+    private OrderDTO createOrderWithItems(OrderDTO orderDTO) {
+        Order order = new Order();
+        order.setStudentId(orderDTO.getStudentId());
+        order.setTotalAmount(orderDTO.getTotalAmount());
+        order.setStatus(orderDTO.getStatus());
+        order.setOrderDate(orderDTO.getOrderDate());
+        order.setAddressId(orderDTO.getAddressId());
+        order.setCreatedDate(LocalDateTime.now());
+
+        // Process order items
+        List<OrderItem> orderItems = new ArrayList<>();
+        for (OrderItemDTO itemDTO : orderDTO.getOrderItems()) {
+            Product product =
+                    productRepository
+                            .findById(itemDTO.getProductId())
+                            .orElseThrow(
+                                    () ->
+                                            new OrderException(
+                                                    "Product not found: "
+                                                            + itemDTO.getProductId()));
+
+            if (product.getStockQuantity() < itemDTO.getQuantity()) {
+                throw new OrderException(
+                        "Insufficient stock for product: " + itemDTO.getProductId());
+            }
+
+            // Update stock
+            product.setStockQuantity(product.getStockQuantity() - itemDTO.getQuantity());
+            productRepository.save(product);
+
+            OrderItem orderItem = new OrderItem();
+            orderItem.setOrder(order);
+            orderItem.setProductId(itemDTO.getProductId());
+            orderItem.setQuantity(itemDTO.getQuantity());
+            orderItem.setPrice(itemDTO.getPrice());
+            orderItems.add(orderItem);
+        }
+
+        order.setOrderItems(orderItems);
+        Order savedOrder = repository.save(order);
+
+        try {
+            producer.sendOrder(savedOrder);
+        } catch (Exception e) {
+            throw new KafkaException("Failed to send order event to Kafka: " + e.getMessage(), e);
+        }
+
+        return createSimpleDTO(savedOrder);
+    }
+
+    private OrderDTO createSimpleDTO(Order order) {
+        OrderDTO dto = new OrderDTO();
+        dto.setId(order.getId());
+        dto.setStudentId(order.getStudentId());
+        dto.setTotalAmount(order.getTotalAmount());
+        dto.setStatus(order.getStatus());
+        dto.setOrderDate(order.getOrderDate());
+        dto.setAddressId(order.getAddressId());
+        dto.setCreatedDate(order.getCreatedDate());
+        return dto;
     }
 }

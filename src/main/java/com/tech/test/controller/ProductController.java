@@ -266,6 +266,9 @@ public class ProductController {
             @Parameter(description = "ID of the product", required = true) @PathVariable Long id) {
 
         byte[] imageData = service.getProductImage(id);
+        if (imageData == null) {
+            return ResponseEntity.notFound().build();
+        }
         return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(imageData);
     }
 }

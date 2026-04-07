@@ -1,5 +1,6 @@
 package com.tech.test.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.tech.test.enums.OrderStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -38,6 +39,7 @@ public class Order {
     private Long addressId;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
     private List<OrderItem> orderItems;
 
     // Legacy fields for backward compatibility

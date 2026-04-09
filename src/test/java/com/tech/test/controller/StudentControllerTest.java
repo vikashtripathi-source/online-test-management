@@ -37,8 +37,8 @@ class StudentControllerTest {
         dto.setName("John Doe");
         dto.setEmail("john.doe@example.com");
         dto.setPassword("password123");
-        dto.setStudentId(12345L);
-        dto.setBranch("CSE");
+        dto.setId(12345L);
+        dto.setBranch(com.tech.test.enums.Branch.CSE);
         return dto;
     }
 
@@ -77,7 +77,7 @@ class StudentControllerTest {
         savedStudent.setId(1L);
         savedStudent.setName(studentDTO.getName());
         savedStudent.setEmail(studentDTO.getEmail());
-        savedStudent.setStudentId(studentDTO.getStudentId());
+        savedStudent.setId(studentDTO.getId());
         savedStudent.setBranch(studentDTO.getBranch());
 
         when(service.register(any(StudentDTO.class))).thenReturn(savedStudent);

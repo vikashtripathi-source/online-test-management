@@ -37,8 +37,8 @@ class StudentServiceTest {
         student.setName("John Doe");
         student.setEmail("john.doe@example.com");
         student.setPassword("encodedPassword");
-        student.setStudentId(12345L);
-        student.setBranch("CSE");
+        student.setId(12345L);
+        student.setBranch(com.tech.test.enums.Branch.CSE);
         return student;
     }
 
@@ -48,8 +48,8 @@ class StudentServiceTest {
         studentDTO.setName("John Doe");
         studentDTO.setEmail("john.doe@example.com");
         studentDTO.setPassword("password123");
-        studentDTO.setStudentId(12345L);
-        studentDTO.setBranch("CSE");
+        studentDTO.setId(12345L);
+        studentDTO.setBranch(com.tech.test.enums.Branch.CSE);
 
         Student savedStudent = sampleStudent();
         savedStudent.setId(1L);
@@ -64,8 +64,8 @@ class StudentServiceTest {
         assertEquals(1L, result.getId());
         assertEquals("John Doe", result.getName());
         assertEquals("john.doe@example.com", result.getEmail());
-        assertEquals(12345L, result.getStudentId());
-        assertEquals("CSE", result.getBranch());
+        assertEquals(12345L, result.getId());
+        assertEquals(com.tech.test.enums.Branch.CSE, result.getBranch());
         assertNull(result.getPassword());
     }
 
@@ -103,11 +103,11 @@ class StudentServiceTest {
         assertNotNull(result);
         assertEquals("jwt-token", result.getToken());
         assertEquals("Bearer", result.getType());
-        assertEquals(1L, result.getId());
-        assertEquals("John Doe", result.getName());
-        assertEquals("john.doe@example.com", result.getEmail());
-        assertEquals(12345L, result.getStudentId());
-        assertEquals("CSE", result.getBranch());
+        assertEquals(1L, result.getStudent().getId());
+        assertEquals("John Doe", result.getStudent().getName());
+        assertEquals("john.doe@example.com", result.getStudent().getEmail());
+        assertEquals(12345L, result.getStudent().getId());
+        assertEquals(com.tech.test.enums.Branch.CSE, result.getStudent().getBranch());
     }
 
     @Test
@@ -155,8 +155,8 @@ class StudentServiceTest {
         assertEquals(1L, result.getId());
         assertEquals("John Doe", result.getName());
         assertEquals("john.doe@example.com", result.getEmail());
-        assertEquals(12345L, result.getStudentId());
-        assertEquals("CSE", result.getBranch());
+        assertEquals(12345L, result.getId());
+        assertEquals(com.tech.test.enums.Branch.CSE, result.getBranch());
     }
 
     @Test
@@ -227,7 +227,7 @@ class StudentServiceTest {
     @Test
     void testGetImage_Success() {
         Student student = sampleStudent();
-        student.setImage("test image content".getBytes());
+        student.setImageUrl("test-image-url");
 
         when(repository.findById(1L)).thenReturn(Optional.of(student));
 
@@ -240,7 +240,7 @@ class StudentServiceTest {
     @Test
     void testGetImage_NoImageFound() {
         Student student = sampleStudent();
-        student.setImage(null);
+        student.setImageUrl(null);
 
         when(repository.findById(1L)).thenReturn(Optional.of(student));
 

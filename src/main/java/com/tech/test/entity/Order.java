@@ -45,7 +45,6 @@ public class Order {
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private List<OrderItem> orderItems;
 
-    // Legacy fields for backward compatibility
     private String productName;
     private Integer quantity;
     private String address;

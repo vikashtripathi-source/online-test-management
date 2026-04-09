@@ -30,7 +30,6 @@ public class KafkaTestController {
 
             kafkaProducerService.sendTestSubmission(testRequest);
 
-            // Test student-record-updated-topic
             StudentTestRecord record = new StudentTestRecord();
             record.setId(1L);
             record.setStudentId(1L);
@@ -39,10 +38,8 @@ public class KafkaTestController {
             record.setScore(85);
             kafkaProducerService.sendStudentRecordUpdated(record);
 
-            // Test student-record-deleted-topic
             kafkaProducerService.sendStudentRecordDeleted(1L);
 
-            // Test question-added-topic
             Question question = new Question();
             question.setId(1L);
             question.setQuestion("Test Question for Kafka");
@@ -53,7 +50,6 @@ public class KafkaTestController {
             question.setCorrectAnswer("A");
             kafkaProducerService.sendQuestionAdded(question);
 
-            // Test question-deleted-topic
             kafkaProducerService.sendQuestionDeleted(1L);
 
             return ResponseEntity.ok("All Kafka topics tested successfully! Check your Kafka UI.");

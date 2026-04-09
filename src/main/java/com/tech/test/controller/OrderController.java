@@ -47,7 +47,6 @@ public class OrderController {
             })
     public ResponseEntity<OrderDTO> create(@Valid @RequestBody OrderDTO orderDTO) {
         OrderDTO saved = orderService.createOrder(orderDTO);
-        // Send order to Kafka for processing
         kafkaProducerService.sendOrder(orderMapper.toEntity(saved));
         return new ResponseEntity<>(saved, HttpStatus.CREATED);
     }
@@ -100,7 +99,6 @@ public class OrderController {
             @Parameter(description = "ID of the order to update") @PathVariable Long id,
             @Valid @RequestBody OrderDTO orderDTO) {
         OrderDTO updated = orderService.updateOrder(id, orderDTO);
-        // Send order update to Kafka
         kafkaProducerService.sendOrderUpdated(orderMapper.toEntity(updated));
         return ResponseEntity.ok(updated);
     }
@@ -116,7 +114,6 @@ public class OrderController {
     public ResponseEntity<Void> deleteOrder(
             @Parameter(description = "ID of the order to delete") @PathVariable Long id) {
         orderService.deleteOrder(id);
-        // Send order deletion to Kafka
         kafkaProducerService.sendOrderDeleted(id);
         return ResponseEntity.noContent().build();
     }

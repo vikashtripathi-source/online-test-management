@@ -30,7 +30,6 @@ public class OrderDTO {
 
     private Long addressId;
 
-    // Legacy fields for backward compatibility
     private String productName;
 
     private Integer quantity;

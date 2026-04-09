@@ -53,7 +53,6 @@ public class StudentTestRecord {
     @Column(name = "test_date")
     private java.time.LocalDateTime testDate;
 
-    // Legacy fields for backward compatibility
     @NotBlank(message = "Roll number cannot be blank")
     @Column(nullable = false)
     private String rollNumber;

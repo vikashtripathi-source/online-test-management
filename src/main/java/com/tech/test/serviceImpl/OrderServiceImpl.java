@@ -45,12 +45,10 @@ public class OrderServiceImpl implements com.tech.test.service.OrderService {
                 throw new InvalidDataException("Order DTO cannot be null");
             }
 
-            // Handle new orderItems structure
             if (orderDTO.getOrderItems() != null && !orderDTO.getOrderItems().isEmpty()) {
                 return createOrderWithItems(orderDTO);
             }
 
-            // Handle legacy structure for backward compatibility
             if (orderDTO.getProductName() == null || orderDTO.getProductName().trim().isEmpty()) {
                 throw new InvalidDataException("Product name cannot be null or empty");
             }
@@ -251,7 +249,6 @@ public class OrderServiceImpl implements com.tech.test.service.OrderService {
                         "Failed to send order event to Kafka: " + e.getMessage(), e);
             }
 
-            // Temporarily bypass mapper to avoid circular reference
             OrderDTO dto = new OrderDTO();
             dto.setId(savedOrder.getId());
             dto.setStudentId(savedOrder.getStudentId());
@@ -354,7 +351,6 @@ public class OrderServiceImpl implements com.tech.test.service.OrderService {
                         "Insufficient stock for product: " + itemDTO.getProductId());
             }
 
-            // Update stock
             product.setStockQuantity(product.getStockQuantity() - itemDTO.getQuantity());
             productRepository.save(product);
 

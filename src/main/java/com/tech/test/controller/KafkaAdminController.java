@@ -37,7 +37,7 @@ public class KafkaAdminController {
     public ResponseEntity<Map<String, String>> kafkaHealth() {
         Map<String, String> response = new HashMap<>();
         try {
-            // Test Kafka connectivity by sending a health check message
+
             kafkaTemplate.send("health-check-topic", "health-check", "Kafka health check message");
             response.put("status", "UP");
             response.put("kafka", "Connected and operational");
@@ -98,8 +98,6 @@ public class KafkaAdminController {
     public ResponseEntity<Map<String, Object>> getRecentEvents() {
         Map<String, Object> response = new HashMap<>();
 
-        // This would typically be populated from a database or cache
-        // For now, providing a template structure
         Map<String, Integer> eventCounts = new HashMap<>();
         eventCounts.put("test_submissions", 0);
         eventCounts.put("orders_created", 0);

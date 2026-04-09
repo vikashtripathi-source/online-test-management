@@ -142,7 +142,7 @@ public class ProductServiceImpl implements ProductService {
             Path filePath = uploadPath.resolve(product.getImageFilename());
 
             if (!Files.exists(filePath)) {
-                // Log warning and return null instead of throwing exception
+
                 System.err.println("Warning: Image file not found: " + product.getImageFilename());
                 return null;
             }

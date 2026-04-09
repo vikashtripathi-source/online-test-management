@@ -24,7 +24,7 @@ public class KafkaProducerServiceImpl implements com.tech.test.service.KafkaProd
 
     public void sendTestSubmission(SubmitTestRequest request) {
         if (!kafkaEnabled) {
-            return; // Silently skip if Kafka is disabled
+            return;
         }
         try {
             if (request == null) {
@@ -46,7 +46,7 @@ public class KafkaProducerServiceImpl implements com.tech.test.service.KafkaProd
 
     public void sendOrder(Order order) {
         if (!kafkaEnabled) {
-            return; // Silently skip if Kafka is disabled
+            return;
         }
         try {
             if (order == null) {
@@ -66,7 +66,7 @@ public class KafkaProducerServiceImpl implements com.tech.test.service.KafkaProd
 
     public void sendQuestionAdded(Question question) {
         if (!kafkaEnabled) {
-            return; // Silently skip if Kafka is disabled
+            return;
         }
         try {
             if (question == null) {
@@ -88,7 +88,7 @@ public class KafkaProducerServiceImpl implements com.tech.test.service.KafkaProd
 
     public void sendQuestionDeleted(Long id) {
         if (!kafkaEnabled) {
-            return; // Silently skip if Kafka is disabled
+            return;
         }
         try {
             if (id == null || id <= 0) {
@@ -107,7 +107,7 @@ public class KafkaProducerServiceImpl implements com.tech.test.service.KafkaProd
 
     public void sendStudentRecordUpdated(StudentTestRecord record) {
         if (!kafkaEnabled) {
-            return; // Silently skip if Kafka is disabled
+            return;
         }
         try {
             if (record == null) {
@@ -129,7 +129,7 @@ public class KafkaProducerServiceImpl implements com.tech.test.service.KafkaProd
 
     public void sendStudentRecordDeleted(Long id) {
         if (!kafkaEnabled) {
-            return; // Silently skip if Kafka is disabled
+            return;
         }
         try {
             if (id == null || id <= 0) {
@@ -148,7 +148,7 @@ public class KafkaProducerServiceImpl implements com.tech.test.service.KafkaProd
 
     public void sendOrderUpdated(Order order) {
         if (!kafkaEnabled) {
-            return; // Silently skip if Kafka is disabled
+            return;
         }
         try {
             if (order == null) {
@@ -170,7 +170,7 @@ public class KafkaProducerServiceImpl implements com.tech.test.service.KafkaProd
 
     public void sendOrderDeleted(Long id) {
         if (!kafkaEnabled) {
-            return; // Silently skip if Kafka is disabled
+            return;
         }
         try {
             if (id == null || id <= 0) {

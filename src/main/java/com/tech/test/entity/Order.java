@@ -1,5 +1,6 @@
 package com.tech.test.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.tech.test.enums.OrderStatus;
 import jakarta.persistence.*;
@@ -16,6 +17,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "orders")
 @AllArgsConstructor
 @NoArgsConstructor
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Order {
 
     @Id
@@ -40,6 +42,7 @@ public class Order {
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private List<OrderItem> orderItems;
 
     // Legacy fields for backward compatibility

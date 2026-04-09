@@ -25,7 +25,11 @@ public class JwtUtil {
     }
 
     public String extractUsername(String token) {
-        return extractClaim(token, Claims::getSubject);
+        try {
+            return extractClaim(token, Claims::getSubject);
+        } catch (ExpiredJwtException e) {
+            return null;
+        }
     }
 
     public Date extractExpiration(String token) {
@@ -38,15 +42,23 @@ public class JwtUtil {
     }
 
     private Claims extractAllClaims(String token) {
-        return Jwts.parser()
-                .verifyWith(getSigningKey())
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
+        try {
+            return Jwts.parser()
+                    .verifyWith(getSigningKey())
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+        } catch (ExpiredJwtException e) {
+            return e.getClaims();
+        }
     }
 
     private Boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
+        try {
+            return extractExpiration(token).before(new Date());
+        } catch (ExpiredJwtException e) {
+            return true;
+        }
     }
 
     public String generateToken(UserDetails userDetails) {
@@ -85,7 +97,12 @@ public class JwtUtil {
     }
 
     public Long extractUserId(String token) {
-        Claims claims = extractAllClaims(token);
-        return claims.get("userId", Long.class);
+        try {
+            Claims claims = extractAllClaims(token);
+            return claims.get("userId", Long.class);
+        } catch (ExpiredJwtException e) {
+            Claims claims = e.getClaims();
+            return claims.get("userId", Long.class);
+        }
     }
 }

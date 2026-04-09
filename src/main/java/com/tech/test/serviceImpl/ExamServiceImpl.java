@@ -44,7 +44,7 @@ public class ExamServiceImpl implements ExamService {
             }
             Question question = questionMapper.toEntity(questionDTO);
             Question saved = questionRepo.save(question);
-            // kafkaProducerService.sendQuestionAdded(saved); // Temporarily disabled
+            kafkaProducerService.sendQuestionAdded(saved);
             return questionMapper.toDTO(saved);
         } catch (InvalidDataException e) {
             throw e;
@@ -62,7 +62,7 @@ public class ExamServiceImpl implements ExamService {
                 throw new QuestionException("Question not found with ID: " + id);
             }
             questionRepo.deleteById(id);
-            // kafkaProducerService.sendQuestionDeleted(id); // Temporarily disabled
+            kafkaProducerService.sendQuestionDeleted(id);
         } catch (InvalidDataException | QuestionException e) {
             throw e;
         } catch (Exception e) {

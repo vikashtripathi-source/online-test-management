@@ -42,8 +42,6 @@ public class ExamController {
             })
     public ResponseEntity<QuestionDTO> addQuestion(@Valid @RequestBody QuestionDTO questionDTO) {
         QuestionDTO saved = service.addQuestion(questionDTO);
-        // Send question added event to Kafka
-        kafkaProducerService.sendQuestionAdded(questionMapper.toEntity(saved));
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
@@ -91,8 +89,6 @@ public class ExamController {
     public ResponseEntity<Void> deleteQuestion(
             @Parameter(description = "ID of the question to delete") @PathVariable Long id) {
         service.deleteQuestion(id);
-        // Send question deleted event to Kafka
-        kafkaProducerService.sendQuestionDeleted(id);
         return ResponseEntity.noContent().build();
     }
 

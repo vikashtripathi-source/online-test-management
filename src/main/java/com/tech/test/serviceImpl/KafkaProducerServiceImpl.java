@@ -5,6 +5,7 @@ import com.tech.test.entity.Order;
 import com.tech.test.entity.Question;
 import com.tech.test.entity.StudentTestRecord;
 import com.tech.test.exception.KafkaException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
@@ -12,12 +13,19 @@ import org.springframework.stereotype.Service;
 public class KafkaProducerServiceImpl implements com.tech.test.service.KafkaProducerService {
 
     private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final boolean kafkaEnabled;
 
-    public KafkaProducerServiceImpl(KafkaTemplate<String, Object> kafkaTemplate) {
+    public KafkaProducerServiceImpl(
+            KafkaTemplate<String, Object> kafkaTemplate,
+            @Value("${app.kafka.enabled:true}") boolean kafkaEnabled) {
         this.kafkaTemplate = kafkaTemplate;
+        this.kafkaEnabled = kafkaEnabled;
     }
 
     public void sendTestSubmission(SubmitTestRequest request) {
+        if (!kafkaEnabled) {
+            return; // Silently skip if Kafka is disabled
+        }
         try {
             if (request == null) {
                 throw new KafkaException("Test submission request cannot be null");
@@ -37,6 +45,9 @@ public class KafkaProducerServiceImpl implements com.tech.test.service.KafkaProd
     }
 
     public void sendOrder(Order order) {
+        if (!kafkaEnabled) {
+            return; // Silently skip if Kafka is disabled
+        }
         try {
             if (order == null) {
                 throw new KafkaException("Order cannot be null");
@@ -54,6 +65,9 @@ public class KafkaProducerServiceImpl implements com.tech.test.service.KafkaProd
     }
 
     public void sendQuestionAdded(Question question) {
+        if (!kafkaEnabled) {
+            return; // Silently skip if Kafka is disabled
+        }
         try {
             if (question == null) {
                 throw new KafkaException("Question cannot be null");
@@ -73,6 +87,9 @@ public class KafkaProducerServiceImpl implements com.tech.test.service.KafkaProd
     }
 
     public void sendQuestionDeleted(Long id) {
+        if (!kafkaEnabled) {
+            return; // Silently skip if Kafka is disabled
+        }
         try {
             if (id == null || id <= 0) {
                 throw new KafkaException("Question ID must be a positive number");
@@ -89,6 +106,9 @@ public class KafkaProducerServiceImpl implements com.tech.test.service.KafkaProd
     }
 
     public void sendStudentRecordUpdated(StudentTestRecord record) {
+        if (!kafkaEnabled) {
+            return; // Silently skip if Kafka is disabled
+        }
         try {
             if (record == null) {
                 throw new KafkaException("Student test record cannot be null");
@@ -108,6 +128,9 @@ public class KafkaProducerServiceImpl implements com.tech.test.service.KafkaProd
     }
 
     public void sendStudentRecordDeleted(Long id) {
+        if (!kafkaEnabled) {
+            return; // Silently skip if Kafka is disabled
+        }
         try {
             if (id == null || id <= 0) {
                 throw new KafkaException("Student record ID must be a positive number");
@@ -124,6 +147,9 @@ public class KafkaProducerServiceImpl implements com.tech.test.service.KafkaProd
     }
 
     public void sendOrderUpdated(Order order) {
+        if (!kafkaEnabled) {
+            return; // Silently skip if Kafka is disabled
+        }
         try {
             if (order == null) {
                 throw new KafkaException("Order cannot be null");
@@ -143,6 +169,9 @@ public class KafkaProducerServiceImpl implements com.tech.test.service.KafkaProd
     }
 
     public void sendOrderDeleted(Long id) {
+        if (!kafkaEnabled) {
+            return; // Silently skip if Kafka is disabled
+        }
         try {
             if (id == null || id <= 0) {
                 throw new KafkaException("Order ID must be a positive number");
